@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DApp 浏览器 - Trust Wallet Provider 集成文档</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 左侧边栏目录 */
+        .sidebar {
+            width: 260px;
+            background: #2c3e50;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 20px 0;
+            z-index: 100;
+        }
+
+        .sidebar h3 {
+            color: white;
+            padding: 0 20px 15px;
+            margin: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.1em;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            margin: 0;
+            padding: 10px 0;
+        }
+
+        .sidebar ul li {
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar ul li a {
+            display: block;
+            color: #bdc3c7;
+            text-decoration: none;
+            padding: 8px 25px;
+            transition: all 0.2s;
+            font-size: 0.95em;
+        }
+
+        .sidebar ul li a:hover {
+            color: white;
+            background: rgba(52, 152, 219, 0.3);
+        }
+
+        .sidebar ul li a.active {
+            color: white;
+            background: #3498db;
+        }
+
+        .sidebar ul li ul {
+            padding: 0;
+        }
+
+        .sidebar ul li ul li a {
+            padding-left: 40px;
+            font-size: 0.85em;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 20px 40px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 900px;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin: 30px 0 15px;
+            color: #2980b9;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            scroll-margin-top: 20px;
+        }
+
+        h3 {
+            font-size: 1.2em;
+            margin: 20px 0 10px;
+            color: #34495e;
+            scroll-margin-top: 20px;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0 20px;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* 代码块样式 */
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.9em;
+        }
+
+        /* JavaScript 语法高亮 */
+        .hljs-keyword {
+            color: #cc99cd;
+        }
+        .hljs-string {
+            color: #8dc891;
+        }
+        .hljs-function {
+            color: #6196cc;
+        }
+        .hljs-comment {
+            color: #999;
+            font-style: italic;
+        }
+        .hljs-variable {
+            color: #f08d49;
+        }
+        .hljs-method {
+            color: #6196cc;
+        }
+        .hljs-number {
+            color: #ae81ff;
+        }
+
+        /* 行内代码 */
+        :not(pre) > code {
+            background: #f1f1f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #d63384;
+        }
+
+        /* 提示框 */
+        .note {
+            background: #e7f3ff;
+            border-left: 4px solid #3498db;
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* 流程图 */
+        .flow {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .flow-step {
+            background: white;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+        }
+
+        .arrow {
+            text-align: center;
+            color: #3498db;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 2px 0;
+        }
+
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧边栏目录 -->
+    <div class="sidebar">
+        <h3>📑 目录</h3>
+        <ul>
+            <li><a href="#section1" onclick="setActive(this)">一、EIP-1193 标准协议方法</a>
+                <ul>
+                    <li><a href="#section1-1" onclick="setActive(this)">1.1 核心方法</a></li>
+                    <li><a href="#section1-2" onclick="setActive(this)">1.2 标准事件</a></li>
+                    <li><a href="#section1-3" onclick="setActive(this)">1.3 调用示例</a></li>
+                </ul>
+            </li>
+            <li><a href="#section2" onclick="setActive(this)">二、window.trustwallet 接口</a>
+                <ul>
+                    <li><a href="#section2-1" onclick="setActive(this)">2.1 所有方法</a></li>
+                    <li><a href="#section2-2" onclick="setActive(this)">2.2 postMessage 协议</a></li>
+                </ul>
+            </li>
+            <li><a href="#section3" onclick="setActive(this)">三、window.ethereum Provider</a>
+                <ul>
+                    <li><a href="#section3-1" onclick="setActive(this)">3.1 构造配置</a></li>
+                    <li><a href="#section3-2" onclick="setActive(this)">3.2 回传方法</a></li>
+                </ul>
+            </li>
+            <li><a href="#section4" onclick="setActive(this)">四、完整通信流程</a>
+                <ul>
+                    <li><a href="#section4-1" onclick="setActive(this)">4.1 DApp → 原生调用</a></li>
+                    <li><a href="#section4-2" onclick="setActive(this)">4.2 原生 → DApp 回传</a></li>
+                    <li><a href="#section4-3" onclick="setActive(this)">4.3 完整调用链</a></li>
+                    <li><a href="#section4-4" onclick="setActive(this)">4.4 设计思想</a></li>
+                </ul>
+            </li>
+            <li><a href="#summary" onclick="setActive(this)">总结</a></li>
+        </ul>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        <div class="container">
+            <h1>DApp 浏览器 - Trust Wallet Provider 集成文档</h1>
+            <p>本文档详细说明了在 iOS WKWebView 中集成 Trust Wallet <code>trust-min.js</code> 实现 DApp 与原生钱包交互的完整架构。</p>
+
+            <hr>
+
+            <h2 id="section1">第一部分：EIP-1193 标准协议方法</h2>
+            <p><a href="https://eips.ethereum.org/EIPS/eip-1193" target="_blank">EIP-1193</a> 是 Ethereum Provider JavaScript API 的官方标准协议，定义了 <code>window.ethereum</code> 必须实现的接口。</p>
+
+            <h3 id="section1-1">1.1 核心方法（必须实现）</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>方法</th>
+                        <th>签名</th>
+                        <th>返回值</th>
+                        <th>描述</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>request</strong></td>
+                        <td><code>(args: { method: string; params: any[] }) =&gt; Promise&lt;any&gt;</code></td>
+                        <td><code>Promise&lt;any&gt;</code></td>
+                        <td>✅ <strong>推荐入口</strong>，发送 JSON-RPC 请求。现代 DApp 都使用此方法</td>
+                    </tr>
+                    <tr>
+                        <td><strong>on</strong></td>
+                        <td><code>(eventName: string, listener: Function) =&gt; this</code></td>
+                        <td>Provider instance</td>
+                        <td>添加事件监听器</td>
+                    </tr>
+                    <tr>
+                        <td><strong>off</strong></td>
+                        <td><code>(eventName: string, listener: Function) =&gt; this</code></td>
+                        <td>Provider instance</td>
+                        <td>移除事件监听器（<code>removeListener</code> 的别名）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>removeListener</strong></td>
+                        <td><code>(eventName: string, listener: Function) =&gt; this</code></td>
+                        <td>Provider instance</td>
+                        <td>移除事件监听器</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="section1-2">1.2 标准事件</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>事件</th>
+                        <th>参数类型</th>
+                        <th>触发时机</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>connect</strong></td>
+                        <td><code>{ chainId: string }</code></td>
+                        <td>成功连接到区块链网络</td>
+                    </tr>
+                    <tr>
+                        <td><strong>disconnect</strong></td>
+                        <td><code>{ code: number; message: string }</code></td>
+                        <td>断开网络连接</td>
+                    </tr>
+                    <tr>
+                        <td><strong>chainChanged</strong></td>
+                        <td><code>chainId: string</code> (hex 格式)</td>
+                        <td>当前连接的链 ID 改变</td>
+                    </tr>
+                    <tr>
+                        <td><strong>accountsChanged</strong></td>
+                        <td><code>accounts: string[]</code></td>
+                        <td>用户选中的账户列表改变</td>
+                    </tr>
+                    <tr>
+                        <td><strong>message</strong></td>
+                        <td><code>{ type: string; data: any }</code></td>
+                        <td>接收到通用消息</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="section1-3">1.3 在 trust-min 中的完整调用示例</h3>
+<pre><code><span class="hljs-comment">// 现代标准方式（EIP-1193）</span>
+<span class="hljs-variable">window</span>.<span class="hljs-method">ethereum</span>
+  .<span class="hljs-method">request</span>({ <span class="hljs-keyword">method</span>: <span class="hljs-string">'eth_requestAccounts'</span> })
+  .<span class="hljs-method">then</span>(<span class="hljs-function">accounts</span> =&gt; {
+    <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'Accounts:'</span>, accounts);
+  })
+  .<span class="hljs-method">catch</span>(<span class="hljs-function">error</span> =&gt; {
+    <span class="hljs-variable">console</span>.<span class="hljs-method">error</span>(<span class="hljs-string">'Error:'</span>, error);
+  });
+
+<span class="hljs-comment">// 监听链变化（标准事件）</span>
+<span class="hljs-variable">window</span>.<span class="hljs-method">ethereum</span>.<span class="hljs-method">on</span>(<span class="hljs-string">'chainChanged'</span>, (<span class="hljs-variable">chainId</span>) =&gt; {
+  <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'Chain changed to:'</span>, chainId);
+  <span class="hljs-variable">window</span>.<span class="hljs-method">location</span>.<span class="hljs-method">reload</span>();
+});
+
+<span class="hljs-comment">// 监听账户变化（标准事件）</span>
+<span class="hljs-variable">window</span>.<span class="hljs-method">ethereum</span>.<span class="hljs-method">on</span>(<span class="hljs-string">'accountsChanged'</span>, (<span class="hljs-variable">accounts</span>) =&gt; {
+  <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'Accounts changed:'</span>, accounts);
+});
+</code></pre>
+
+            <h2 id="section2">第二部分：<code>window.trustwallet</code> 对象接口</h2>
+            <p><code>trust-min.js</code> 加载后会在 <code>window</code> 上创建 <code>window.trustwallet</code> 对象，暴露 Provider 构造函数供调用方使用。</p>
+
+            <h3 id="section2-1">2.1 所有属性和方法</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>成员</th>
+                        <th>类型</th>
+                        <th>必须由你提供</th>
+                        <th>描述</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Provider</strong></td>
+                        <td><code>constructor</code></td>
+                        <td>❌</td>
+                        <td>Ethereum EIP-1193 Provider 构造函数，用于创建 <code>window.ethereum</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>postMessage</strong></td>
+                        <td><code>(name: string, id: number, object: any) =&gt; void</code></td>
+                        <td>✅ <strong>必须</strong></td>
+                        <td>trust-min 通过此方法发送请求到原生应用。<strong>这是核心出口</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>TrustSolanaWeb3Provider</strong></td>
+                        <td><code>constructor</code></td>
+                        <td>❌</td>
+                        <td>Solana 区块链 Provider</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TrustAptosWeb3Provider</strong></td>
+                        <td><code>constructor</code></td>
+                        <td>❌</td>
+                        <td>Aptos 区块链 Provider</td>
+                    </tr>
+                    <tr>
+                        <td><strong>getKey</strong></td>
+                        <td><code>function</code></td>
+                        <td>❌</td>
+                        <td>Cosmos 密钥获取</td>
+                    </tr>
+                    <tr>
+                        <td><strong>signAmino</strong></td>
+                        <td><code>function</code></td>
+                        <td>❌</td>
+                        <td>Cosmos Amino 签名</td>
+                    </tr>
+                    <tr>
+                        <td><strong>signDirect</strong></td>
+                        <td><code>function</code></td>
+                        <td>❌</td>
+                        <td>Cosmos Direct 签名</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="warning">
+                <strong>⚠️ 关键点：</strong> <code>window.trustwallet.postMessage</code> 必须由你实现并替换！trust-min 只定义了调用协议，实际实现需要你提供来连接原生应用。
+            </div>
+
+            <h3 id="section2-2">2.2 <code>postMessage</code> 调用协议</h3>
+            <p>当 trust-min 有请求需要发给原生时，调用格式：</p>
+
+<pre><code><span class="hljs-variable">window</span>.<span class="hljs-method">trustwallet</span>.<span class="hljs-method">postMessage</span>(methodName, requestId, payload);
+</code></pre>
+
+            <p>请求方法名映射关系：</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>DApp RPC method</th>
+                        <th>trust-min <code>name</code></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>eth_requestAccounts</code></td>
+                        <td><code>requestAccounts</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>personal_sign</code> / <code>eth_sign</code></td>
+                        <td><code>signMessage</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>eth_signTransaction</code></td>
+                        <td><code>signTransaction</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>eth_sendTransaction</code></td>
+                        <td><code>sendTransaction</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>eth_signTypedData</code> / v4</td>
+                        <td><code>signTypedData</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2 id="section3">第三部分：<code>window.ethereum</code> Provider 对象方法</h2>
+            <p>当你调用 <code>window.ethereum = new window.trustwallet.Provider(config)</code> 创建实例后，得到一个完整的 EIP-1193 兼容 Provider。</p>
+
+            <h3 id="section3-1">3.1 构造函数配置</h3>
+
+<pre><code><span class="hljs-variable">window</span>.<span class="hljs-method">ethereum</span> = <span class="hljs-keyword">new</span> <span class="hljs-variable">window</span>.<span class="hljs-method">trustwallet</span>.<span class="hljs-method">Provider</span>({
+  <span class="hljs-variable">isDebug</span>: <span class="hljs-keyword">false</span>,
+  <span class="hljs-variable">ethereum</span>: {
+    <span class="hljs-variable">address</span>: <span class="hljs-string">''</span>,  <span class="hljs-comment">// 当前选中的钱包地址（初始为空）</span>
+    <span class="hljs-variable">chainId</span>: <span class="hljs-number">1</span>    <span class="hljs-comment">// 当前链 ID（可选）</span>
+  }
+});
+</code></pre>
+
+            <h3 id="section3-2">3.3 原生需要调用的回传方法</h3>
+            <p>原生处理完请求后，<strong>必须调用这些方法</strong>把结果返回给 trust-min：</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>方法</th>
+                        <th>签名</th>
+                        <th>何时调用</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>sendResponse</strong></td>
+                        <td><code>(id: number, result: any) =&gt; void</code></td>
+                        <td>✅ <strong>请求成功</strong>时调用，将结果返回给 trust-min</td>
+                    </tr>
+                    <tr>
+                        <td><strong>sendError</strong></td>
+                        <td><code>(id: number, error: string \| Error) =&gt; void</code></td>
+                        <td>✅ <strong>请求失败</strong>时调用，将错误返回给 trust-min</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="note">
+                <strong>💡 双向通信：</strong><br>
+                trust-min → 你（通过 <code>window.trustwallet.postMessage</code>）<br>
+                你 → trust-min（通过 <code>window.ethereum.sendResponse/sendError</code>）
+            </div>
+
+            <h2 id="section4">第四部分：完整通信流程</h2>
+
+            <h3 id="section4-1">4.1 DApp → 原生：调用流程</h3>
+
+            <div class="flow">
+                <div class="flow-step"><strong>DApp (网页 JavaScript)</strong></div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">DApp 调用标准接口：<code>window.ethereum.request({ method: 'eth_requestAccounts' })</code></div>
+                <div class="arrow">↓</div>
+                <div class="flow-step"><strong>window.ethereum</strong> 就是 trust-min Provider → 内部处理</div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">分发到 <code>_request</code> → <code>switch</code> 匹配方法</div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">调用 <code>this.postMessage("requestAccounts", id, {})</code></div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">调用 <code>window.trustwallet.postMessage</code> → <strong>进入你的代码</strong></div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">你的 glue code 通过 WKWebView 桥接：<br><code>window.webkit.messageHandlers.ethereum.postMessage(json)</code></div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">WKWebView 自动桥接到 Swift → <code>userContentController(didReceive:)</code></div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">Swift 解析 → 转换方法名：<code>requestAccounts</code> → <code>eth_requestAccounts</code></div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">原生业务处理 → 需要用户授权则弹出弹窗</div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">用户批准后 → <code>Web3RPCService.handleEthRequestAccounts()</code> 获取地址</div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">构建响应 → 进入回传流程</div>
+            </div>
+
+            <div class="note">
+                <strong>核心原理：</strong><br>
+                为什么 <code>window.ethereum.request</code> 能到原生？因为 <strong>你已经把 <code>window.trustwallet.postMessage</code> 替换成你的实现</strong>，trust-min 调用这个方法时自然就进入了你的桥接代码，然后通过 WKWebView 的消息机制跳到 Swift。
+            </div>
+
+            <h3 id="section4-2">4.2 原生 → DApp：回传响应流程</h3>
+
+            <div class="flow">
+                <div class="flow-step"><strong>Swift: Web3RPCService</strong> 处理完成</div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">构建结果，比如：<code>["0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B"]</code></div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">通过 <code>evaluateJavaScript</code> 调用 JS：<br>
+<code>window.ethereum.sendResponse(id, resultJSON);</code></div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">trust-min 接收：从 <code>this.callbacks</code> 获取原始 Promise callback</div>
+                <div class="arrow">↓</div>
+                <div class="flow-step"><code>callback(null, result)</code> → resolve Promise</div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">结果返回给 DApp → DApp 的 <code>.then()</code> 被调用</div>
+                <div class="arrow">↓</div>
+                <div class="flow-step"><strong>✓ 完成</strong></div>
+            </div>
+
+            <h3 id="section4-3">4.3 完整调用链总览</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>步骤</th>
+                        <th>调用方</th>
+                        <th>方法</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>DApp</td>
+                        <td><code>window.ethereum.request({ method: 'eth_requestAccounts' })</code></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><code>window.ethereum</code></td>
+                        <td><code>_request("eth_requestAccounts", [])</code></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><code>window.ethereum</code></td>
+                        <td><code>window.trustwallet.postMessage("requestAccounts", id, {})</code></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>你的 glue code</td>
+                        <td><code>webkit.messageHandlers.ethereum.postMessage(json)</code></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>iOS 系统</td>
+                        <td><code>userContentController(didReceive:)</code></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Swift</td>
+                        <td><code>handleIncomingMessage()</code> 解析，转换方法名</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Swift</td>
+                        <td><code>Web3RPCService.handleEthRequestAccounts()</code> 获取地址</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Swift</td>
+                        <td><code>evaluateJavaScript("window.ethereum.sendResponse()")</code></td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td><code>window.ethereum</code></td>
+                        <td><code>sendResponse(id, result)</code> resolve Promise</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>window.ethereum</td>
+                        <td>DApp 获得结果 → <code>.then(accounts)</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="section4-4">4.4 设计思想</h3>
+
+            <p>这是 trust-min 设计的<strong>分层分离架构</strong>：</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>层次</th>
+                        <th>职责</th>
+                        <th>由谁提供</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Provider 层</strong></td>
+                        <td>实现 EIP-1193 标准接口，协议转换</td>
+                        <td>trust-min.js</td>
+                    </tr>
+                    <tr>
+                        <td><strong>桥接层</strong></td>
+                        <td>连接 JS 与原生，转发请求和响应</td>
+                        <td><strong>你的应用</strong>（glue code）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>原生业务层</strong></td>
+                        <td>保存私钥、签名、用户授权、RPC 转发</td>
+                        <td><strong>你的应用</strong>（Swift）</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>优点：</p>
+            <ul>
+                <li>✅ <strong>关注点分离</strong>：trust-min 只处理协议转换，不关心原生怎么实现</li>
+                <li>✅ <strong>跨平台通用</strong>：相同的 trust-min 可以在 iOS/Android/浏览器扩展 使用</li>
+                <li>✅ <strong>安全可控</strong>：私钥永远留在原生应用，不会暴露给 JS</li>
+                <li>✅ <strong>易于维护</strong>：协议固定，两边可以独立升级</li>
+            </ul>
+
+            <h2 id="summary">总结</h2>
+
+            <div class="success">
+                <p><strong>✅ 你的项目实现完全正确</strong>，符合 trust-min 的设计约定和 EIP-1193 标准：</p>
+                <ul>
+                    <li><code>window.trustwallet.postMessage</code> ✓ 正确提供</li>
+                    <li><code>window.ethereum = new Provider()</code> ✓ 正确创建</li>
+                    <li>DApp 请求 → JS → 原生 ✓ 正确桥接</li>
+                    <li>原生处理 → JS → DApp ✓ 正确回传</li>
+                    <li>所有标准方法 ✓ 都由 trust-min 实现</li>
+                </ul>
+            </div>
+
+            <div class="footer">
+                Generated for SwiftfulCrypto DApp Browser Integration
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setActive(clicked) {
+            // 移除所有active
+            document.querySelectorAll('.sidebar a').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            // 添加active到点击的
+            clicked.classList.add('active');
+        }
+
+        // 滚动时自动高亮当前章节
+        window.addEventListener('scroll', function() {
+            var headings = document.querySelectorAll('h2, h3');
+            var currentId = '';
+            headings.forEach(function(heading) {
+                var rect = heading.getBoundingClientRect();
+                if (rect.top <= 100) {
+                    currentId = heading.id;
+                }
+            });
+            if (currentId) {
+                document.querySelectorAll('.sidebar a').forEach(function(el) {
+                    el.classList.remove('active');
+                    if (el.getAttribute('href') === '#' + currentId) {
+                        el.classList.add('active');
+                    }
+                });
+            }
+        });
+
+        // 默认选中第一个
+        document.querySelector('.sidebar ul li a').classList.add('active');
+    </script>
+</body>
+</html>

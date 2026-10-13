@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>以太坊网络请求 - 参数及示例</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 左侧边栏目录 */
+        .sidebar {
+            width: 260px;
+            background: #2c3e50;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 20px 0;
+            z-index: 100;
+        }
+
+        .sidebar h3 {
+            color: white;
+            padding: 0 20px 15px;
+            margin: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.1em;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            margin: 0;
+            padding: 10px 0;
+        }
+
+        .sidebar ul li {
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar ul li a {
+            display: block;
+            color: #bdc3c7;
+            text-decoration: none;
+            padding: 8px 25px;
+            transition: all 0.2s;
+            font-size: 0.95em;
+        }
+
+        .sidebar ul li a:hover {
+            color: white;
+            background: rgba(52, 152, 219, 0.3);
+        }
+
+        .sidebar ul li a.active {
+            color: white;
+            background: #3498db;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 20px 40px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 900px;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin: 30px 0 15px;
+            color: #2980b9;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            scroll-margin-top: 20px;
+        }
+
+        h3 {
+            font-size: 1.2em;
+            margin: 25px 0 12px;
+            color: #34495e;
+            scroll-margin-top: 20px;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0 20px;
+            background: white;
+            border-collapse: collapse;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* 方法卡片 */
+        .method-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #e9ecef;
+        }
+
+        .method-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .method-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .method-require-auth {
+            background: #e74c3c;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .method-no-auth {
+            background: #27ae60;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .method-desc {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        /* 代码块样式 */
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.9em;
+        }
+
+        /* 语法高亮 */
+        .hljs-keyword {
+            color: #cc99cd;
+        }
+        .hljs-string {
+            color: #8dc891;
+        }
+        .hljs-function {
+            color: #6196cc;
+        }
+        .hljs-comment {
+            color: #999;
+            font-style: italic;
+        }
+        .hljs-variable {
+            color: #f08d49;
+        }
+        .hljs-method {
+            color: #6196cc;
+        }
+        .hljs-number {
+            color: #ae81ff;
+        }
+        .hljs-property {
+            color: #f08d49;
+        }
+
+        /* 行内代码 */
+        :not(pre) > code {
+            background: #f1f1f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #d63384;
+        }
+
+        /* 提示框 */
+        .note {
+            background: #e7f3ff;
+            border-left: 4px solid #3498db;
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* 参数列表 */
+        .params-list {
+            margin: 10px 0 15px 20px;
+        }
+
+        .params-list li {
+            margin-bottom: 8px;
+        }
+
+        .param-name {
+            font-family: monospace;
+            font-weight: 600;
+            color: #2980b9;
+        }
+
+        /* 返回结果说明 */
+        .result-box {
+            background: #e8f4f8;
+            border-radius: 4px;
+            padding: 10px 15px;
+            margin: 10px 0;
+        }
+
+        .result-box h4 {
+            margin-bottom: 8px;
+            color: #2980b9;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧边栏目录 -->
+    <div class="sidebar">
+        <h3>📑 目录</h3>
+        <ul>
+            <li><a href="#intro" onclick="setActive(this)">概述</a></li>
+            <li><a href="#request-format" onclick="setActive(this)">一、请求格式与通用参数</a>
+                <ul>
+                    <li><a href="#request-params" onclick="setActive(this)">请求参数说明</a></li>
+                    <li><a href="#response-format" onclick="setActive(this)">响应格式</a></li>
+                    <li><a href="#error-codes" onclick="setActive(this)">常见错误码</a></li>
+                    <li><a href="#request-examples" onclick="setActive(this)">请求格式示例</a></li>
+                </ul>
+            </li>
+            <li><a href="#block-param" onclick="setActive(this)">二、block 状态参数</a></li>
+            <li><a href="#query-methods" onclick="setActive(this)">三、常用查询方法示例</a>
+                <ul>
+                    <li><a href="#eth-getBalance" onclick="setActive(this)">eth_getBalance</a></li>
+                    <li><a href="#eth-gasPrice" onclick="setActive(this)">eth_gasPrice</a></li>
+                    <li><a href="#eth-getBlockByNumber" onclick="setActive(this)">eth_getBlockByNumber</a></li>
+                    <li><a href="#eth-getTransactionByHash" onclick="setActive(this)">eth_getTransactionByHash</a></li>
+                    <li><a href="#eth-getTransactionReceipt" onclick="setActive(this)">eth_getTransactionReceipt</a></li>
+                    <li><a href="#eth-call" onclick="setActive(this)">eth_call</a></li>
+                    <li><a href="#eth-chainId" onclick="setActive(this)">eth_chainId / net_version</a></li>
+                </ul>
+            </li>
+            <li><a href="#write-methods" onclick="setActive(this)">四、写操作与批量请求</a>
+                <ul>
+                    <li><a href="#tx-signing" onclick="setActive(this)">交易签名过程</a></li>
+                    <li><a href="#eth-sendRawTransaction" onclick="setActive(this)">eth_sendRawTransaction</a></li>
+                    <li><a href="#batch-request" onclick="setActive(this)">批量请求</a></li>
+                </ul>
+            </li>
+            <li><a href="#full-example" onclick="setActive(this)">完整示例（本地私钥）</a></li>
+            <li><a href="#full-example-ethers" onclick="setActive(this)">完整示例（ethers）</a></li>
+            <li><a href="#full-example-viem" onclick="setActive(this)">完整示例（viem）</a></li>
+            <li><a href="#full-example-wagmi" onclick="setActive(this)">完整示例（wagmi）</a></li>
+            <li><a href="#wallet-connect" onclick="setActive(this)">九、钱包连接方式</a>
+                <ul>
+                    <li><a href="#connect-overview" onclick="setActive(this)">连接方式总览</a></li>
+                    <li><a href="#connect-local" onclick="setActive(this)">本地私钥连接（三库对比）</a></li>
+                    <li><a href="#connect-external" onclick="setActive(this)">第三方钱包连接（EIP-1193）</a></li>
+                    <li><a href="#connect-wagmi" onclick="setActive(this)">wagmi 连接器（多钱包统一接入）</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        <div class="container">
+            <h1>以太坊网络请求 - 参数及示例</h1>
+
+            <p>本文档介绍 DApp 与以太坊节点（RPC 端点）交互的请求参数格式，包含完整的请求/响应示例和逐行注释，可直接复制使用。</p>
+
+            <h2 id="intro">概述</h2>
+
+            <p>以太坊节点对外提供 <strong>JSON-RPC 2.0</strong> 接口，有两种常用的调用方式，它们的 <code>method</code> 和 <code>params</code> 完全一致：</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>调用方式</th>
+                        <th>格式</th>
+                        <th>适用场景</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>钱包注入（EIP-1193）</td>
+                        <td><code>window.ethereum.request({ method, params })</code></td>
+                        <td>需要用户签名/授权的操作，浏览器内 DApp</td>
+                    </tr>
+                    <tr>
+                        <td>直接 HTTP 请求</td>
+                        <td>向 RPC 端点 POST 一段 JSON-RPC 报文</td>
+                        <td>只读查询、后端服务、自己广播交易</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="note">
+                <strong>💡 两种方式的对应关系：</strong><br>
+                <code>window.ethereum.request({ method: 'eth_getBalance', params: [...] })</code><br>
+                等价于钱包在内部帮你向节点发送了：<br>
+                <code>{"jsonrpc":"2.0","method":"eth_getBalance","params":[...],"id":1}</code><br>
+                也就是说，<strong>EIP-1193 只是 JSON-RPC 的浏览器封装</strong>，去掉外层的 <code>jsonrpc</code> 和 <code>id</code> 字段就是钱包的调用格式。
+            </div>
+
+            <h2 id="request-format">一、请求格式与通用参数</h2>
+
+            <div id="request-params">
+                <h3>请求参数说明</h3>
+                <p>每个 JSON-RPC 请求都由以下 4 个固定字段组成：</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>字段</th>
+                            <th>类型</th>
+                            <th>必填</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>jsonrpc</code></td>
+                            <td>string</td>
+                            <td>✅</td>
+                            <td>协议版本，固定传 <code>"2.0"</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>method</code></td>
+                            <td>string</td>
+                            <td>✅</td>
+                            <td>要调用的 RPC 方法名，如 <code>"eth_getBalance"</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>params</code></td>
+                            <td>array | object</td>
+                            <td>✅</td>
+                            <td>方法参数。大多数方法用<strong>数组</strong>（按位置对应），少数方法（如 <code>eth_call</code> 的第一个参数）内含对象</td>
+                        </tr>
+                        <tr>
+                            <td><code>id</code></td>
+                            <td>number | string</td>
+                            <td>✅</td>
+                            <td>请求标识符，响应会原样带回，用于把响应和请求配对（并发请求时靠它区分）</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warning">
+                    <strong>⚠️ 参数格式注意：</strong>
+                    <ul>
+                        <li>所有数字参数都是<strong>十六进制字符串</strong>（如金额 <code>"0x16345785d8a0000"</code>、区块号 <code>"0x1283F00"</code>），不是十进制数字</li>
+                        <li>地址必须是 40 位十六进制，可以带 <code>0x</code> 前缀</li>
+                        <li><code>params</code> 里的对象字段名区分大小写（如 <code>from</code>、<code>to</code>、<code>data</code>）</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="response-format">
+                <h3>响应格式</h3>
+                <p>成功和失败的响应结构固定，靠 <code>result</code> / <code>error</code> 二选一区分：</p>
+<pre><code><span class="hljs-comment">// ✅ 成功响应：有 result，没有 error</span>
+{
+  <span class="hljs-property">"jsonrpc"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-property">"id"</span>: <span class="hljs-number">1</span>,                          <span class="hljs-comment">// 原样返回请求里的 id，用于配对</span>
+  <span class="hljs-property">"result"</span>: <span class="hljs-string">"0x1bc16d674ec80000"</span>    <span class="hljs-comment">// 业务数据（几乎都是十六进制字符串）</span>
+}
+
+<span class="hljs-comment">// ❌ 失败响应：有 error，没有 result</span>
+{
+  <span class="hljs-property">"jsonrpc"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-property">"id"</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-property">"error"</span>: {
+    <span class="hljs-property">"code"</span>: <span class="hljs-number">-32602</span>,                          <span class="hljs-comment">// 错误码（见下表）</span>
+    <span class="hljs-property">"message"</span>: <span class="hljs-string">"invalid argument 0: hex string has no 0x prefix"</span>  <span class="hljs-comment">// 人类可读的错误描述</span>
+  }
+}
+</code></pre>
+                <div class="note">
+                    <strong>📌 判断逻辑：</strong>先看 HTTP 状态码，再看响应体里有没有 <code>error</code> 字段。业务代码里应该用 <code>if (resp.error) 抛错 else 用 resp.result</code> 的方式处理，而不是只判断 HTTP 200。
+                </div>
+            </div>
+
+            <div id="error-codes">
+                <h3>常见错误码</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>code</th>
+                            <th>含义</th>
+                            <th>常见原因 / 处理方式</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>-32700</code></td>
+                            <td>JSON 解析错误</td>
+                            <td>请求体不是合法 JSON，检查 <code>Content-Type: application/json</code> 和报文格式</td>
+                        </tr>
+                        <tr>
+                            <td><code>-32600</code></td>
+                            <td>无效请求</td>
+                            <td>缺少 <code>jsonrpc</code>/<code>method</code>/<code>id</code> 字段，或 <code>jsonrpc</code> 不是 "2.0"</td>
+                        </tr>
+                        <tr>
+                            <td><code>-32601</code></td>
+                            <td>方法不存在</td>
+                            <td>方法名拼错，或节点不支持（如某些轻节点不支持 <code>eth_getLogs</code>）</td>
+                        </tr>
+                        <tr>
+                            <td><code>-32602</code></td>
+                            <td>参数无效</td>
+                            <td>参数个数不对、十六进制格式错误、地址长度不对，最常见的错误</td>
+                        </tr>
+                        <tr>
+                            <td><code>-32603</code></td>
+                            <td>内部错误</td>
+                            <td>节点内部异常，一般是限流或节点故障，稍后重试</td>
+                        </tr>
+                        <tr>
+                            <td><code>-32000</code></td>
+                            <td>服务端自定义错误</td>
+                            <td>如 <code>exceeds block gas limit</code>、<code>insufficient funds</code>，看 message 内容</td>
+                        </tr>
+                        <tr>
+                            <td><code>4001</code></td>
+                            <td>用户拒绝（仅钱包）</td>
+                            <td>EIP-1193 特有：用户在钱包弹窗里点了拒绝，属于正常流程不算异常</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="request-examples">
+                <h3>请求格式示例</h3>
+
+                <div class="method-card" id="curl-example">
+                    <div class="method-header">
+                        <span class="method-name">curl 命令行请求</span>
+                        <span class="method-no-auth">无需授权</span>
+                    </div>
+                    <div class="method-desc">
+                        <strong>功能：</strong>直接向 RPC 端点发送 JSON-RPC 请求，适合调试和后端调用。
+                    </div>
+                    <strong>调用示例（查询地址余额）：</strong>
+<pre><code><span class="hljs-comment"># -X POST：JSON-RPC 只支持 POST 方法</span>
+<span class="hljs-comment"># -H：必须声明 Content-Type 为 application/json</span>
+<span class="hljs-comment"># --data：请求体，4 个固定字段缺一不可</span>
+curl -X POST https://mainnet.infura.io/v3/YOUR_API_KEY \
+  -H <span class="hljs-string">"Content-Type: application/json"</span> \
+  --data <span class="hljs-string">'{
+    "jsonrpc": "2.0",                  // 协议版本，固定 2.0
+    "method": "eth_getBalance",        // 方法名：查余额
+    "params": [                        // 参数数组，按位置对应：
+      "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",  // 参数1：要查的地址
+      "latest"                         // 参数2：区块状态，latest=最新区块
+    ],
+    "id": 1                            // 请求 id，响应会原样带回
+  }'</span>
+</code></pre>
+                </div>
+
+                <div class="method-card" id="fetch-example">
+                    <div class="method-header">
+                        <span class="method-name">JavaScript fetch 请求</span>
+                        <span class="method-no-auth">无需授权</span>
+                    </div>
+                    <div class="method-desc">
+                        <strong>功能：</strong>在浏览器或 Node.js 里用 fetch 调用 RPC，并封装错误处理，这是最通用的写法。
+                    </div>
+                    <strong>调用示例（通用 RPC 请求封装）：</strong>
+<pre><code><span class="hljs-keyword">const</span> rpcUrl = <span class="hljs-string">'https://mainnet.infura.io/v3/YOUR_API_KEY'</span>;
+
+<span class="hljs-comment">/**
+ * 通用 JSON-RPC 请求封装
+ * @param {string} method - RPC 方法名，如 'eth_getBalance'
+ * @param {Array}  params - 参数数组（注意：数字要用十六进制字符串）
+ * @returns {Promise&lt;any&gt;} 响应中的 result 字段
+ */</span>
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">rpc</span>(<span class="hljs-params">method, params = []</span>) </span>{
+  <span class="hljs-keyword">const</span> resp = <span class="hljs-keyword">await</span> <span class="hljs-function">fetch</span>(rpcUrl, {
+    <span class="hljs-property">method</span>: <span class="hljs-string">'POST'</span>,                          <span class="hljs-comment">// JSON-RPC 固定用 POST</span>
+    <span class="hljs-property">headers</span>: { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span> },
+    <span class="hljs-property">body</span>: <span class="hljs-function">JSON</span>.<span class="hljs-method">stringify</span>({
+      <span class="hljs-property">jsonrpc</span>: <span class="hljs-string">'2.0'</span>,   <span class="hljs-comment">// 协议版本，固定值</span>
+      <span class="hljs-property">id</span>: <span class="hljs-function">Date</span>.<span class="hljs-method">now</span>(),  <span class="hljs-comment">// 用时间戳当 id，保证唯一便于配对</span>
+      method,            <span class="hljs-comment">// 方法名</span>
+      params             <span class="hljs-comment">// 参数数组，没有参数时传 []</span>
+    })
+  });
+
+  <span class="hljs-comment">// 第一步：检查 HTTP 层（401 = API Key 错误，429 = 限流）</span>
+  <span class="hljs-keyword">if</span> (!resp.ok) {
+    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-function">Error</span>(<span class="hljs-string">`HTTP ${resp.status}: ${await resp.text()}`</span>);
+  }
+
+  <span class="hljs-keyword">const</span> json = <span class="hljs-keyword">await</span> resp.<span class="hljs-method">json</span>();
+
+  <span class="hljs-comment">// 第二步：检查 JSON-RPC 层，有 error 字段就是调用失败</span>
+  <span class="hljs-keyword">if</span> (json.<span class="hljs-property">error</span>) {
+    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-function">Error</span>(<span class="hljs-string">`RPC ${json.error.code}: ${json.error.message}`</span>);
+  }
+
+  <span class="hljs-comment">// 第三步：返回业务数据</span>
+  <span class="hljs-keyword">return</span> json.<span class="hljs-property">result</span>;
+}
+
+<span class="hljs-comment">// 使用示例：查询余额并换算成 ETH</span>
+<span class="hljs-keyword">const</span> balanceHex = <span class="hljs-keyword">await</span> <span class="hljs-function">rpc</span>(<span class="hljs-string">'eth_getBalance'</span>, [<span class="hljs-string">'0xd8dA...6045'</span>, <span class="hljs-string">'latest'</span>]);
+<span class="hljs-comment">// 返回值是十六进制 wei，用 BigInt 转换避免精度丢失</span>
+<span class="hljs-keyword">const</span> eth = <span class="hljs-function">Number</span>(<span class="hljs-function">BigInt</span>(balanceHex)) / <span class="hljs-number">1e18</span>;
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`余额: ${eth} ETH`</span>);
+</code></pre>
+                    <div class="warning">
+                        <strong>⚠️ 安全提示：</strong>API Key 不要硬编码在前端代码里（会被打包暴露），前端应该走自己的后端代理转发 RPC 请求。
+                    </div>
+                </div>
+
+                <div class="method-card" id="eip1193-example">
+                    <div class="method-header">
+                        <span class="method-name">钱包内 EIP-1193 请求（对应关系）</span>
+                        <span class="method-no-auth">无需授权</span>
+                    </div>
+                    <div class="method-desc">
+                        <strong>功能：</strong>同样的 method + params，在钱包环境里用 <code>window.ethereum.request</code> 调用，钱包自动处理签名和广播。
+                    </div>
+<pre><code><span class="hljs-comment">// HTTP 直连方式（上面 rpc 函数的调用）：</span>
+<span class="hljs-function">rpc</span>(<span class="hljs-string">'eth_getBalance'</span>, [<span class="hljs-string">'0xd8dA...6045'</span>, <span class="hljs-string">'latest'</span>]);
+
+<span class="hljs-comment">// 钱包方式：method 和 params 一模一样，只是套上 request()</span>
+<span class="hljs-comment">// 区别：钱包方式不需要自己找 RPC 端点，且签名类方法会弹窗</span>
+<span class="hljs-variable">window</span>.<span class="hljs-method">ethereum</span>.<span class="hljs-method">request</span>({
+  <span class="hljs-property">method</span>: <span class="hljs-string">'eth_getBalance'</span>,              <span class="hljs-comment">// ← 对应 JSON-RPC 的 method 字段</span>
+  <span class="hljs-property">params</span>: [<span class="hljs-string">'0xd8dA...6045'</span>, <span class="hljs-string">'latest'</span>]   <span class="hljs-comment">// ← 对应 JSON-RPC 的 params 字段</span>
+})
+.<span class="hljs-method">then</span>(<span class="hljs-variable">result</span> =&gt; {
+  <span class="hljs-comment">// 直接拿到 result 字段，钱包已帮忙处理了 jsonrpc/id/error 包装</span>
+  <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(result);
+});
+</code></pre>
+                </div>
+            </div>
+
+            <h2 id="block-param">二、block 状态参数</h2>
+
+            <p><code>eth_getBalance</code>、<code>eth_call</code>、<code>eth_getCode</code> 等查询方法的最后一个参数都是「区块状态」，决定在哪个区块的状态上执行查询：</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>取值</th>
+                        <th>含义</th>
+                        <th>使用场景</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>"0x1283F00"</code></td>
+                        <td>指定区块号（十六进制）</td>
+                        <td>查询历史状态，如「昨天的余额」</td>
+                    </tr>
+                    <tr>
+                        <td><code>"latest"</code></td>
+                        <td>最新已打包区块</td>
+                        <td>最常用，99% 的查询都用它</td>
+                    </tr>
+                    <tr>
+                        <td><code>"safe"</code></td>
+                        <td>已确认不会再回滚的安全区块</td>
+                        <td>对最终性要求高的业务</td>
+                    </tr>
+                    <tr>
+                        <td><code>"finalized"</code></td>
+                        <td>已最终确定的区块（PoS 下约 2 个 epoch）</td>
+                        <td>跨链桥、大额结算等强一致场景</td>
+                    </tr>
+                    <tr>
+                        <td><code>"pending"</code></td>
+                        <td>包含待处理交易的模拟状态</td>
+                        <td>较少用，部分节点不支持</td>
+                    </tr>
+                    <tr>
+                        <td><code>"earliest"</code></td>
+                        <td>创世区块（区块 0）</td>
+                        <td>极少用</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="note">
+                <strong>💡 注意：</strong>查询历史区块要求节点是归档节点（Archive Node），普通全节点只保留最近 128 个区块的状态，查太早的区块会报错 <code>missing trie node</code>。
+            </div>
+
+            <h2 id="query-methods">三、常用查询方法示例</h2>
+
+            <div class="method-card" id="eth-getBalance">
+                <div class="method-header">
+                    <span class="method-name">eth_getBalance 查询余额</span>
+                    <span class="method-no-auth">无需授权</span>
+                </div>
+                <div class="method-desc">
+                    <strong>功能：</strong>查询地址的主链币（ETH）余额，返回十六进制 wei。
+                </div>
+                <strong>参数：</strong>
+                <ul class="params-list">
+                    <li><span class="param-name">params[0]</span> - 要查询的地址（20 字节十六进制）</li>
+                    <li><span class="param-name">params[1]</span> - 区块状态，一般传 <code>"latest"</code>（见第二节）</li>
+                </ul>
+                <strong>调用示例：</strong>
+<pre><code><span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> <span class="hljs-function">rpc</span>(<span class="hljs-string">'eth_getBalance'</span>, [
+  <span class="hljs-string">'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'</span>, <span class="hljs-comment">// 参数1：地址</span>
+  <span class="hljs-string">'latest'</span>                                        <span class="hljs-comment">// 参数2：最新区块</span>
+]);
+
+<span class="hljs-comment">// result = "0x1bc16d674ec80000"（十六进制 wei 字符串）</span>
+<span class="hljs-comment">// 1 ETH = 10^18 wei，用 BigInt 转换（普通 Number 超过 2^53 会丢精度）</span>
+<span class="hljs-keyword">const</span> wei = <span class="hljs-function">BigInt</span>(result);
+<span class="hljs-keyword">const</span> eth = <span class="hljs-function">Number</span>(wei) / <span class="hljs-number">1e18</span>; <span class="hljs-comment">// 展示用够精确，金额计算请保留 BigInt</span>
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`余额: ${eth} ETH`</span>);
+</code></pre>
+                <div class="result-box">
+                    <h4>返回结果：</h4>
+                    <code>string</code> - 十六进制 wei 余额，如 <code>"0x1bc16d674ec80000"</code> = 2 ETH
+                </div>
+            </div>
+
+            <div class="method-card" id="eth-gasPrice">
+                <div class="method-header">
+                    <span class="method-name">eth_gasPrice 查询 gas 价格</span>
+                    <span class="method-no-auth">无需授权</span>
+                </div>
+                <div class="method-desc">
+                    <strong>功能：</strong>获取节点建议的 gas 价格（十六进制 wei），用于估算手续费。无参数。
+                </div>
+                <strong>调用示例：</strong>
+<pre><code><span class="hljs-keyword">const</span> gasPriceHex = <span class="hljs-keyword">await</span> <span class="hljs-function">rpc</span>(<span class="hljs-string">'eth_gasPrice'</span>, []); <span class="hljs-comment">// 无参数，params 传空数组</span>
+
+<span class="hljs-keyword">const</span> gasPrice = <span class="hljs-function">BigInt</span>(gasPriceHex); <span class="hljs-comment">// 如 15000000000 = 15 Gwei</span>
+<span class="hljs-comment">// 1 Gwei = 10^9 wei，换算成 Gwei 方便阅读</span>
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`建议 gas 价格: ${Number(gasPrice) / 1e9} Gwei`</span>);
+
+<span class="hljs-comment">// 估算转账手续费：21000 gas × gasPrice</span>
+<span class="hljs-keyword">const</span> fee = gasPrice * <span class="hljs-number">21000n</span>;
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`转账预估手续费: ${Number(fee) / 1e18} ETH`</span>);
+</code></pre>
+                <div class="result-box">
+                    <h4>返回结果：</h4>
+                    <code>string</code> - 十六进制 wei，如 <code>"0x37e11d600"</code> = 15 Gwei
+                </div>
+            </div>
+
+            <div class="method-card" id="eth-getBlockByNumber">
+                <div class="method-header">
+                    <span class="method-name">eth_getBlockByNumber 查询区块</span>
+                    <span class="method-no-auth">无需授权</span>
+                </div>
+                <div class="method-desc">
+                    <strong>功能：</strong>按区块号查询区块详情，包括区块内所有交易哈希、时间戳、gas 使用量等。
+                </div>
+                <strong>参数：</strong>
+                <ul class="params-list">
+                    <li><span class="param-name">params[0]</span> - 区块号（十六进制）或 <code>"latest"</code> 等状态值</li>
+                    <li><span class="param-name">params[1]</span> - 是否返回完整交易对象：<code>true</code> 返回交易数组（体积大），<code>false</code> 只返回交易哈希数组（快）</li>
+                </ul>
+                <strong>调用示例：</strong>
+<pre><code><span class="hljs-comment">// 十进制 19329000 转十六进制：19329000..toString(16) = "0x126f5a8"</span>
+<span class="hljs-keyword">const</span> blockHex = (<span class="hljs-number">19329000</span>).<span class="hljs-method">toString</span>(<span class="hljs-number">16</span>);
+
+<span class="hljs-keyword">const</span> block = <span class="hljs-keyword">await</span> <span class="hljs-function">rpc</span>(<span class="hljs-string">'eth_getBlockByNumber'</span>, [
+  <span class="hljs-string">'0x'</span> + blockHex,  <span class="hljs-comment">// 参数1：区块号，必须带 0x 前缀的十六进制</span>
+  <span class="hljs-keyword">false</span>              <span class="hljs-comment">// 参数2：false=只要交易哈希列表，不要完整交易</span>
+]);
+
+<span class="hljs-comment">// 返回的区块对象（关键字段都是十六进制）</span>
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>({
+  <span class="hljs-property">区块号</span>: <span class="hljs-function">parseInt</span>(block.<span class="hljs-property">number</span>, <span class="hljs-number">16</span>),
+  <span class="hljs-property">时间戳</span>: <span class="hljs-keyword">new</span> <span class="hljs-function">Date</span>(<span class="hljs-function">parseInt</span>(block.<span class="hljs-property">timestamp</span>, <span class="hljs-number">16</span>) * <span class="hljs-number">1000</span>), <span class="hljs-comment">// 秒转毫秒</span>
+  <span class="hljs-property">交易数</span>: block.<span class="hljs-property">transactions</span>.<span class="hljs-property">length</span>,  <span class="hljs-comment">// false 时只有哈希</span>
+  <span class="hljs-property">gasUsed</span>: <span class="hljs-function">parseInt</span>(block.<span class="hljs-property">gasUsed</span>, <span class="hljs-number">16</span>)
+});
+</code></pre>
+                <div class="result-box">
+                    <h4>返回结果：</h4>
+                    区块对象；区块不存在返回 <code>null</code>。常用字段：<code>number</code>、<code>timestamp</code>、<code>transactions</code>、<code>gasUsed</code>、<code>baseFeePerGas</code>
+                </div>
+            </div>
+
+            <div class="method-card" id="eth-getTransactionByHash">
+                <div class="method-header">
+                    <span class="method-name">eth_getTransactionByHash 查询交易</span>
+                    <span class="method-no-auth">无需授权</span>
+                </div>
+                <div class="method-desc">
+                    <strong>功能：</strong>按交易哈希查询交易详情。<strong>注意：交易发出后立刻查就能查到（在 mempool 中），但此时 <code>blockNumber</code> 为 <code>null</code>，表示还没上链。</strong>
+                </div>
+                <strong>参数：</strong>
+                <ul class="params-list">
+                    <li><span class="param-name">params[0]</span> - 交易哈希（32 字节十六进制）</li>
+                </ul>
+                <strong>调用示例（真实交易，可直接复制运行）：</strong>
+<pre><code><span class="hljs-comment">// 一笔真实的以太坊主网交易（EIP-1559 转账类交易，区块 26,081,472）</span>
+<span class="hljs-keyword">const</span> txHash = <span class="hljs-string">'0x3341fd610b0d38186a39ceff5a7ccc19832da55b1051436697509dc252e73264'</span>;
+<span class="hljs-comment">// 哈希格式说明：</span>
+<span class="hljs-comment">//   - 32 字节 = 64 个十六进制字符 + '0x' 前缀，共 66 个字符</span>
+<span class="hljs-comment">//   - 交易哈希 = 签名后交易的 keccak256，全局唯一，交易发出后立即可查</span>
+
+<span class="hljs-keyword">const</span> tx = <span class="hljs-keyword">await</span> <span class="hljs-function">rpc</span>(<span class="hljs-string">'eth_getTransactionByHash'</span>, [txHash]);
+
+<span class="hljs-keyword">if</span> (!tx) {
+  <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'交易不存在（哈希错误或节点已丢弃）'</span>);
+} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (tx.<span class="hljs-property">blockNumber</span> === <span class="hljs-keyword">null</span>) {
+  <span class="hljs-comment">// blockNumber 为 null 说明还在内存池排队，未被打包</span>
+  <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'交易已广播，等待打包中...'</span>);
+} <span class="hljs-keyword">else</span> {
+  <span class="hljs-comment">// 已上链，但上链 ≠ 执行成功，确认成功要查回执（下一个方法）</span>
+  <span class="hljs-comment">// 这笔交易实际查询到的值（可以直接对照运行结果）：</span>
+  <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`已打包进区块 ${parseInt(tx.blockNumber, 16)}`</span>); <span class="hljs-comment">// 26081472</span>
+  <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>({
+    <span class="hljs-property">from</span>: tx.<span class="hljs-property">from</span>,            <span class="hljs-comment">// 发送者: 0x3131f201bc68c615e289fcfdd6ead12e8a94c768</span>
+    <span class="hljs-property">to</span>: tx.<span class="hljs-property">to</span>,                <span class="hljs-comment">// 接收者: 0x51c72848c68a965f66fa7a88855f9f7784502a7f（合约地址）</span>
+    <span class="hljs-property">value</span>: <span class="hljs-function">BigInt</span>(tx.<span class="hljs-property">value</span>), <span class="hljs-comment">// 转账金额(wei): 0x0，这笔没转主链币</span>
+    <span class="hljs-property">input</span>: tx.<span class="hljs-property">input</span>,          <span class="hljs-comment">// 调用数据: '0x771d503f...'，非空说明是合约调用</span>
+    <span class="hljs-property">type</span>: tx.<span class="hljs-property">type</span>,            <span class="hljs-comment">// '0x2' = EIP-1559 交易（最新类型，主流都是它）</span>
+    <span class="hljs-property">gas</span>: <span class="hljs-function">parseInt</span>(tx.<span class="hljs-property">gas</span>, <span class="hljs-number">16</span>) <span class="hljs-comment">// gas 上限: 200701</span>
+  });
+}
+</code></pre>
+                <div class="note">
+                    <strong>📌 关于这笔示例交易：</strong><code>to</code> 是合约地址且 <code>input</code> 非空（选择器 <code>0x771d503f</code>），说明这是一笔<strong>合约调用</strong>（聚合器兑换类交易）而不是普通转账；<code>value</code> 为 <code>0x0</code> 表示没有随交易发送主链币。普通 ETH 转账的特征正好相反：<code>input</code> 为 <code>'0x'</code>、<code>to</code> 为用户地址、<code>value</code> 大于 0。
+                </div>
+            </div>
+
+            <div class="method-card" id="eth-getTransactionReceipt">
+                <div class="method-header">
+                    <span class="method-name">eth_getTransactionReceipt 查询交易回执</span>
+                    <span class="method-no-auth">无需授权</span>
+                </div>
+                <div class="method-desc">
+                    <strong>功能：</strong>查询交易执行回执。<strong>这是确认交易（尤其是合约调用）是否真正成功的唯一方法。</strong>未上链时返回 <code>null</code>。
+                </div>
+                <strong>参数：</strong>
+                <ul class="params-list">
+                    <li><span class="param-name">params[0]</span> - 交易哈希</li>
+                </ul>
+                <strong>调用示例（用上面同一笔真实交易查询回执）：</strong>
+<pre><code><span class="hljs-comment">// 沿用上一个方法里那笔真实交易的哈希，两个方法可以对照运行</span>
+<span class="hljs-keyword">const</span> receipt = <span class="hljs-keyword">await</span> <span class="hljs-function">rpc</span>(<span class="hljs-string">'eth_getTransactionReceipt'</span>, [
+  <span class="hljs-string">'0x3341fd610b0d38186a39ceff5a7ccc19832da55b1051436697509dc252e73264'</span>
+]);
+
+<span class="hljs-keyword">if</span> (!receipt) {
+  <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'还没上链，稍后再查'</span>);
+} <span class="hljs-keyword">else</span> {
+  <span class="hljs-comment">// status 是判断成败的核心字段：</span>
+  <span class="hljs-comment">//   "0x1" = 执行成功</span>
+  <span class="hljs-comment">//   "0x0" = 执行失败（revert），gas 已消耗不退还</span>
+  <span class="hljs-keyword">const</span> success = receipt.<span class="hljs-property">status</span> === <span class="hljs-string">'0x1'</span>;
+  <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(success ? <span class="hljs-string">'✅ 执行成功'</span> : <span class="hljs-string">'❌ 执行失败'</span>);
+  <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`区块: ${parseInt(receipt.blockNumber, 16)}`</span>);
+  <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`消耗 gas: ${parseInt(receipt.gasUsed, 16)}`</span>);
+  <span class="hljs-comment">// logs：合约触发的事件（Transfer、Approval 等），做转账记录解析靠它</span>
+  <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`事件数: ${receipt.logs.length}`</span>);
+}
+</code></pre>
+                <div class="result-box">
+                    <h4>返回结果：</h4>
+                    未上链返回 <code>null</code>；上链后返回回执对象，核心字段 <code>status</code>（<code>"0x1"</code> 成功 / <code>"0x0"</code> 失败）、<code>blockNumber</code>、<code>gasUsed</code>、<code>logs</code>
+                </div>
+            </div>
+
+            <div class="method-card" id="eth-call">
+                <div class="method-header">
+                    <span class="method-name">eth_call 调用合约只读方法</span>
+                    <span class="method-no-auth">无需授权</span>
+                </div>
+                <div class="method-desc">
+                    <strong>功能：</strong>本地模拟执行一次合约调用，不消耗 gas、不改变链上状态，立即返回结果。读取代币余额、价格等全靠它。
+                </div>
+                <strong>参数：</strong>
+                <ul class="params-list">
+                    <li><span class="param-name">params[0].to</span> - 合约地址</li>
+                    <li><span class="param-name">params[0].data</span> - 编码后的调用数据：函数选择器(4字节) + ABI 编码参数</li>
+                    <li><span class="param-name">params[0].from</span> - 可选。调用者地址（合约里 <code>msg.sender</code> 的值）</li>
+                    <li><span class="param-name">params[0].value</span> - 可选。模拟随交易发送的主链币（十六进制 wei）</li>
+                    <li><span class="param-name">params[1]</span> - 区块状态，一般传 <code>"latest"</code></li>
+                </ul>
+                <div class="note">
+                    <strong>📌 params[0].data 是什么意思？（以转账 10 USDC 为例）</strong><br>
+                    <code>data</code> = <strong>函数选择器</strong>（告诉合约执行哪个函数）+ <strong>每个参数占 32 字节的编码</strong>（把参数值塞进去）。三段拆解：
+<pre style="margin: 10px 0;"><code>0xa9059cbb                                                        ← ① 选择器：keccak256("transfer(address,uint256)") 的前 4 字节
+000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045  ← ② 第1个参数 to：地址去掉 0x，左补零到 64 个字符
+0000000000000000000000000000000000000000000000000000000000989680  ← ③ 第2个参数 amount：10 USDC = 10000000(最小单位)，转十六进制再补零
+</code></pre>
+                    三段拼在一起就是完整的 <code>data</code>。用 JS 拼出来：
+<pre style="margin: 10px 0;"><code><span class="hljs-keyword">const</span> data = <span class="hljs-string">'0xa9059cbb'</span>                                             <span class="hljs-comment">// ① 选择器（常用函数的选择器是固定值，直接查表）</span>
+  + <span class="hljs-string">'0xd8dA...6045'</span>.<span class="hljs-method">slice</span>(<span class="hljs-number">2</span>).<span class="hljs-method">toLowerCase</span>().<span class="hljs-method">padStart</span>(<span class="hljs-number">64</span>, <span class="hljs-string">'0'</span>)      <span class="hljs-comment">// ② 地址补零到 64 位</span>
+  + <span class="hljs-function">BigInt</span>(<span class="hljs-number">10000000</span>).<span class="hljs-method">toString</span>(<span class="hljs-number">16</span>).<span class="hljs-method">padStart</span>(<span class="hljs-number">64</span>, <span class="hljs-string">'0'</span>);              <span class="hljs-comment">// ③ 金额转十六进制再补零到 64 位</span></code></pre>
+                    印证结构：下面示例里读 <code>decimals()</code> 的 <code>data</code> 只有 <code>'0x313ce567'</code> 一个选择器——因为它<strong>没有参数</strong>，后面没有第②③段。
+                </div>
+                <strong>调用示例（读取 ERC20 的 decimals）：</strong>
+<pre><code><span class="hljs-comment">// decimals() 的函数选择器是 0x313ce567，无参数，data 只有选择器</span>
+<span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> <span class="hljs-function">rpc</span>(<span class="hljs-string">'eth_call'</span>, [
+  {
+    <span class="hljs-property">to</span>: <span class="hljs-string">'0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'</span>, <span class="hljs-comment">// USDC 合约地址</span>
+    <span class="hljs-property">data</span>: <span class="hljs-string">'0x313ce567'</span>   <span class="hljs-comment">// decimals() 选择器，无参数函数 data 到此为止</span>
+  },
+  <span class="hljs-string">'latest'</span>               <span class="hljs-comment">// 在最新区块状态上执行</span>
+]);
+
+<span class="hljs-comment">// 返回 uint256，直接 BigInt 转换：USDC 结果是 6（6 位小数）</span>
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`小数位: ${BigInt(result)}`</span>);
+</code></pre>
+                <div class="note">
+                    <strong>💡 参数编码参考：</strong>函数选择器和 ABI 编码的详细规则见 <a href="dapp-wallet-methods2.html#contract" target="_blank">DApp 调用钱包文档 - 合约交互章节</a>。
+                </div>
+            </div>
+
+            <div class="method-card" id="eth-chainId">
+                <div class="method-header">
+                    <span class="method-name">eth_chainId / net_version 查询链 ID</span>
+                    <span class="method-no-auth">无需授权</span>
+                </div>
+                <div class="method-desc">
+                    <strong>功能：</strong>确认当前连接的是哪条链。连接新 RPC 端点后先调它做健康检查。
+                </div>
+                <strong>调用示例：</strong>
+<pre><code><span class="hljs-comment">// eth_chainId：返回十六进制字符串</span>
+<span class="hljs-keyword">const</span> chainIdHex = <span class="hljs-keyword">await</span> <span class="hljs-function">rpc</span>(<span class="hljs-string">'eth_chainId'</span>, []);
+<span class="hljs-keyword">const</span> chainId = <span class="hljs-function">parseInt</span>(chainIdHex, <span class="hljs-number">16</span>);
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`链 ID: ${chainId}`</span>); <span class="hljs-comment">// 1=以太坊主网, 56=BSC, 137=Polygon</span>
+
+<span class="hljs-comment">// net_version：旧方法，返回十进制字符串，结果一样</span>
+<span class="hljs-keyword">const</span> netVersion = <span class="hljs-keyword">await</span> <span class="hljs-function">rpc</span>(<span class="hljs-string">'net_version'</span>, []);
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`链 ID: ${parseInt(netVersion, 10)}`</span>);
+</code></pre>
+            </div>
+
+            <h2 id="write-methods">四、写操作与批量请求</h2>
+
+            <div class="method-card" id="tx-signing">
+                <div class="method-header">
+                    <span class="method-name">交易签名过程（写操作的前置步骤）</span>
+                    <span class="method-require-auth">需要私钥（钱包内部完成）</span>
+                </div>
+                <div class="method-desc">
+                    <strong>功能：</strong>下一节的 <code>eth_sendRawTransaction</code> 广播的是<strong>已经签名</strong>的交易。广播之前必须经历三个步骤：<strong>构造交易 → 签名 → RLP 编码</strong>。
+                    用钱包时这三步由钱包在后台自动完成（DApp 只调 <code>eth_sendTransaction</code>）；自己管理私钥（后端服务、脚本）时才需要手动走完整流程。
+                </div>
+                <strong>签名流程总览：</strong>
+                <ul class="params-list">
+                    <li><strong>第 1 步</strong> - 构造交易：准备 <code>nonce</code>、费用字段、<code>to</code>/<code>value</code>/<code>data</code> 等</li>
+                    <li><strong>第 2 步</strong> - 签名：对交易字段做 RLP 序列化 → keccak256 哈希 → 私钥 ECDSA 签名，产出 <code>v, r, s</code> 三个签名值</li>
+                    <li><strong>第 3 步</strong> - 编码：把交易字段 + <code>v, r, s</code> 一起 RLP 编码成「原始交易」<code>0xf86c...</code></li>
+                    <li><strong>第 4 步</strong> - 广播：<code>eth_sendRawTransaction</code> 发给节点（见下一张卡片）</li>
+                </ul>
+                <strong>第 1 步：构造交易（EIP-1559 交易的全部字段）：</strong>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>字段</th>
+                            <th>必填</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>nonce</code></td><td>✅</td><td>该地址的交易序号（从 0 递增），既保证顺序又是防重放机制。必须严格连续，跳号会卡住后续交易</td></tr>
+                        <tr><td><code>chainId</code></td><td>✅</td><td>链 ID（EIP-155）。签名时混入链 ID，同一笔交易无法在别的链上重放</td></tr>
+                        <tr><td><code>to</code></td><td>✅</td><td>接收者地址或合约地址（合约创建时省略）</td></tr>
+                        <tr><td><code>value</code></td><td>✅</td><td>主链币金额（十六进制 wei），纯调用合约时为 <code>0x0</code></td></tr>
+                        <tr><td><code>data</code></td><td>-</td><td>合约调用数据（普通转账为 <code>'0x'</code>）</td></tr>
+                        <tr><td><code>gas</code></td><td>✅</td><td>gas 上限，可用 <code>eth_estimateGas</code> 预估</td></tr>
+                        <tr><td><code>maxFeePerGas</code></td><td>✅</td><td>愿付的最大单价（EIP-1559），一般取 <code>eth_gasPrice</code> 的 2 倍左右</td></tr>
+                        <tr><td><code>maxPriorityFeePerGas</code></td><td>✅</td><td>给验证者的小费</td></tr>
+                    </tbody>
+                </table>
+                <strong>获取 <code>nonce</code> 和费用（签名前的两个 RPC 查询）：</strong>
+<pre><code><span class="hljs-comment">// 查交易序号：'pending' 表示把还在排队未上链的交易也数进去</span>
+<span class="hljs-comment">// 这样并发发多笔交易时 nonce 不会冲突；只查 'latest' 在同地址连发时会撞号</span>
+<span class="hljs-keyword">const</span> nonceHex = <span class="hljs-keyword">await</span> <span class="hljs-function">rpc</span>(<span class="hljs-string">'eth_getTransactionCount'</span>, [fromAddress, <span class="hljs-string">'pending'</span>]);
+
+<span class="hljs-comment">// 查建议 gas 价格，maxFeePerGas 一般给 2 倍余量应对波动</span>
+<span class="hljs-keyword">const</span> gasPriceHex = <span class="hljs-keyword">await</span> <span class="hljs-function">rpc</span>(<span class="hljs-string">'eth_gasPrice'</span>, []);
+
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`nonce: ${parseInt(nonceHex, 16)}`</span>);
+</code></pre>
+                <strong>第 2~3 步：签名并编码（实际项目用 ethers.js，内部自动完成）：</strong>
+<pre><code><span class="hljs-keyword">import</span> { <span class="hljs-variable">Wallet</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'ethers'</span>;
+
+<span class="hljs-comment">// ⚠️ 私钥只能出现在受保护的后端环境，绝不能写进前端代码</span>
+<span class="hljs-keyword">const</span> wallet = <span class="hljs-keyword">new</span> <span class="hljs-function">Wallet</span>(privateKey);
+
+<span class="hljs-comment">// signTransaction 内部依次做三件事：</span>
+<span class="hljs-comment">//   1. RLP 序列化：把下面所有字段按规则拼成一个字节数组</span>
+<span class="hljs-comment">//   2. keccak256 哈希：对序列化结果算出 32 字节哈希</span>
+<span class="hljs-comment">//   3. ECDSA 签名（secp256k1 曲线）：用私钥对哈希签名，产出 v, r, s 三个值</span>
+<span class="hljs-comment">//   最后把 v, r, s 附加在交易字段后再做一次 RLP 编码 = 原始交易</span>
+<span class="hljs-keyword">const</span> signedTx = <span class="hljs-keyword">await</span> wallet.<span class="hljs-method">signTransaction</span>({
+  <span class="hljs-property">to</span>: <span class="hljs-string">'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'</span>,
+  <span class="hljs-property">value</span>: <span class="hljs-function">BigInt</span>(<span class="hljs-string">'0.01'</span> * <span class="hljs-number">1e18</span>),        <span class="hljs-comment">// 0.01 ETH（wei）</span>
+  <span class="hljs-property">nonce</span>: <span class="hljs-function">parseInt</span>(nonceHex, <span class="hljs-number">16</span>),       <span class="hljs-comment">// 上面查到的交易序号</span>
+  <span class="hljs-property">chainId</span>: <span class="hljs-number">1</span>,                          <span class="hljs-comment">// 以太坊主网，防跨链重放</span>
+  <span class="hljs-property">gasLimit</span>: <span class="hljs-number">21000</span>n,                    <span class="hljs-comment">// 普通转账固定 21000</span>
+  <span class="hljs-property">maxFeePerGas</span>: <span class="hljs-function">BigInt</span>(gasPriceHex) * <span class="hljs-number">2n</span>,
+  <span class="hljs-property">maxPriorityFeePerGas</span>: <span class="hljs-number">2000000000n</span>    <span class="hljs-comment">// 小费 2 Gwei</span>
+});
+
+<span class="hljs-comment">// signedTx 就是下一节 eth_sendRawTransaction 的参数，形如 '0xf86c...'</span>
+<span class="hljs-comment">// 里面已包含签名 v, r, s：网络用它反推出签名地址（不需要再传 from）</span>
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'签名后的原始交易:'</span>, signedTx);
+</code></pre>
+                <div class="result-box">
+                    <h4>签名的产物（v, r, s）：</h4>
+                    ECDSA 签名产出三个值：<code>r</code>、<code>s</code> 是签名的两个数学分量，<code>v</code>（恢复标识）用于从签名反推出签名者地址。节点收到原始交易后不需要 <code>from</code> 字段——用 <code>v, r, s</code> 直接算出付款地址，这也是签名即「授权」的原理：<strong>谁能产出与该地址匹配的 v, r, s，谁就拥有这个私钥</strong>。
+                </div>
+                <div class="note">
+                    <strong>💡 钱包场景不需要上面这些：</strong>DApp 调 <code>eth_sendTransaction</code> 时，交易字段（含 nonce、费用）由钱包补全和签名，私钥和助记词<strong>永远不会离开钱包</strong>，DApp 只拿到交易哈希。这是 EIP-1193 的核心安全边界：DApp 永远接触不到私钥，上面的手动流程只在后端/脚本自管私钥时才需要。
+                </div>
+            </div>
+
+            <div class="method-card" id="eth-sendRawTransaction">
+                <div class="method-header">
+                    <span class="method-name">eth_sendRawTransaction 广播签名交易</span>
+                    <span class="method-require-auth">需要签名的交易数据</span>
+                </div>
+                <div class="method-desc">
+                    <strong>功能：</strong>把已经签名好的原始交易广播到网络。参数就是上一张卡片「交易签名过程」的产物 <code>signedTx</code>。DApp 场景一般由钱包内部调用；自己管理私钥/从后端拿签名时才会直接用到。
+                </div>
+                <strong>参数：</strong>
+                <ul class="params-list">
+                    <li><span class="param-name">params[0]</span> - RLP 编码并签名后的原始交易数据（<code>eth_signTransaction</code> 的返回值）</li>
+                </ul>
+                <strong>调用示例：</strong>
+<pre><code><span class="hljs-comment">// signedTx 来自钱包的 eth_signTransaction，或自己用 ethers 等库签名</span>
+<span class="hljs-keyword">const</span> txHash = <span class="hljs-keyword">await</span> <span class="hljs-function">rpc</span>(<span class="hljs-string">'eth_sendRawTransaction'</span>, [
+  <span class="hljs-string">'0xf86c...签名后的原始交易...'</span>
+]);
+
+<span class="hljs-comment">// 广播成功返回交易哈希，之后用 eth_getTransactionReceipt 确认执行结果</span>
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`交易哈希: ${txHash}`</span>);
+</code></pre>
+                <div class="warning">
+                    <strong>⚠️ 注意：</strong>同一笔签好名的交易重复广播会报 <code>already known</code>（已在内存池）或 <code>replacement transaction underpriced</code>（想替换需 gas 价格提高 10% 以上）。
+                </div>
+            </div>
+
+            <div class="method-card" id="batch-request">
+                <div class="method-header">
+                    <span class="method-name">批量请求（Batch Request）</span>
+                    <span class="method-no-auth">无需授权</span>
+                </div>
+                <div class="method-desc">
+                    <strong>功能：</strong>把多个 JSON-RPC 请求放进一个数组一次发出，节省往返延迟。响应也是数组，顺序与请求一一对应，靠 <code>id</code> 配对更保险。
+                </div>
+                <strong>调用示例（一次请求同时查余额和块高）：</strong>
+<pre><code><span class="hljs-keyword">const</span> resp = <span class="hljs-keyword">await</span> <span class="hljs-function">fetch</span>(rpcUrl, {
+  <span class="hljs-property">method</span>: <span class="hljs-string">'POST'</span>,
+  <span class="hljs-property">headers</span>: { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span> },
+  <span class="hljs-comment">// body 是请求数组：每个元素都是一条完整的 JSON-RPC 请求</span>
+  <span class="hljs-property">body</span>: <span class="hljs-function">JSON</span>.<span class="hljs-method">stringify</span>([
+    {
+      <span class="hljs-property">jsonrpc</span>: <span class="hljs-string">'2.0'</span>,
+      <span class="hljs-property">id</span>: <span class="hljs-number">1</span>,                              <span class="hljs-comment">// id=1：查余额</span>
+      <span class="hljs-property">method</span>: <span class="hljs-string">'eth_getBalance'</span>,
+      <span class="hljs-property">params</span>: [<span class="hljs-string">'0xd8dA...6045'</span>, <span class="hljs-string">'latest'</span>]
+    },
+    {
+      <span class="hljs-property">jsonrpc</span>: <span class="hljs-string">'2.0'</span>,
+      <span class="hljs-property">id</span>: <span class="hljs-number">2</span>,                              <span class="hljs-comment">// id=2：查块高</span>
+      <span class="hljs-property">method</span>: <span class="hljs-string">'eth_blockNumber'</span>,
+      <span class="hljs-property">params</span>: []
+    }
+  ])
+});
+
+<span class="hljs-comment">// 响应也是数组，与请求顺序对应；单个失败不影响其他请求</span>
+<span class="hljs-keyword">const</span> results = <span class="hljs-keyword">await</span> resp.<span class="hljs-method">json</span>();
+results.<span class="hljs-method">forEach</span>(<span class="hljs-variable">r</span> =&gt; {
+  <span class="hljs-keyword">if</span> (r.<span class="hljs-property">error</span>) {
+    <span class="hljs-variable">console</span>.<span class="hljs-method">error</span>(<span class="hljs-string">`请求 ${r.id} 失败:`</span>, r.<span class="hljs-property">error</span>.<span class="hljs-property">message</span>);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">`请求 ${r.id} 结果:`</span>, r.<span class="hljs-property">result</span>);
+  }
+});
+</code></pre>
+                <div class="note">
+                    <strong>💡 注意：</strong>部分 RPC 服务商对批量请求的条数有限制（如单批 100 条），超限报错时需要拆批发送。
+                </div>
+            </div>
+
+            <h2 id="full-example">五、完整示例（钱包 App 直连链）</h2>
+
+            <p>下面是一个<strong>钱包 App 自身</strong>与链交互的完整代码：私钥保存在本地，地址由私钥直接派生，<strong>不连接任何外部钱包、无需用户授权</strong>。查询和广播都是普通网络请求（fetch 直连 RPC 节点），签名在本地完成。每个流程用到的 RPC 都能在前面章节找到详细说明，代码里也标注了对应章节。</p>
+
+            <div class="method-card" id="full-example-code">
+                <div class="method-header">
+                    <span class="method-name">钱包 App 全流程示例（本地私钥 + 网络请求）</span>
+                    <span class="method-no-auth">全程无需外部钱包</span>
+                </div>
+<pre><code><span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 0. 基础封装：本 App 就是钱包，查询走网络请求，签名用本地私钥</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 查询类方法直接用网络请求（fetch POST JSON-RPC，见文档第一节），全程不依赖外部钱包</span>
+<span class="hljs-keyword">const</span> RPC_URL = <span class="hljs-string">'https://ethereum-rpc.publicnode.com'</span>; <span class="hljs-comment">// 公共 RPC 端点，换成自己的</span>
+
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eth</span>(<span class="hljs-params">method, params = []</span>) </span>{
+  <span class="hljs-keyword">const</span> resp = <span class="hljs-keyword">await</span> <span class="hljs-function">fetch</span>(RPC_URL, {
+    <span class="hljs-property">method</span>: <span class="hljs-string">'POST'</span>,                                 <span class="hljs-comment">// JSON-RPC 固定 POST</span>
+    <span class="hljs-property">headers</span>: { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span> },
+    <span class="hljs-property">body</span>: <span class="hljs-function">JSON</span>.<span class="hljs-method">stringify</span>({
+      <span class="hljs-property">jsonrpc</span>: <span class="hljs-string">'2.0'</span>,   <span class="hljs-comment">// 协议版本，固定值</span>
+      <span class="hljs-property">id</span>: <span class="hljs-function">Date</span>.<span class="hljs-method">now</span>(),  <span class="hljs-comment">// 请求标识，响应原样带回用于配对</span>
+      method,            <span class="hljs-comment">// RPC 方法名，如 'eth_getBalance'</span>
+      params             <span class="hljs-comment">// 参数数组，没有参数时传 []</span>
+    })
+  });
+  <span class="hljs-keyword">const</span> json = <span class="hljs-keyword">await</span> resp.<span class="hljs-method">json</span>();
+  <span class="hljs-comment">// 有 error 字段就是调用失败（错误码见文档第一节）</span>
+  <span class="hljs-keyword">if</span> (json.<span class="hljs-property">error</span>) {
+    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-function">Error</span>(<span class="hljs-string">`RPC ${json.error.code}: ${json.error.message}`</span>);
+  }
+  <span class="hljs-keyword">return</span> json.<span class="hljs-property">result</span>;
+}
+
+<span class="hljs-comment">// 本 App 本身就是钱包：私钥保存在本地（实际项目必须加密存储，如 Keychain/Keystore）</span>
+<span class="hljs-comment">// ethers 的 Wallet 只用它的本地密码学能力：派生地址、签名，链交互全部走上面的网络请求</span>
+<span class="hljs-keyword">import</span> { <span class="hljs-variable">Wallet</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'ethers'</span>;
+<span class="hljs-keyword">const</span> wallet = <span class="hljs-keyword">new</span> <span class="hljs-function">Wallet</span>(<span class="hljs-function">localStorage</span>.<span class="hljs-method">getItem</span>(<span class="hljs-string">'privateKey'</span>));
+
+<span class="hljs-comment">// 常用辅助函数（见文档第一、二节：所有数字参数都是十六进制字符串）</span>
+<span class="hljs-keyword">const</span> <span class="hljs-function"><span class="hljs-title">toNum</span></span>    = <span class="hljs-variable">hex</span> =&gt; <span class="hljs-function">parseInt</span>(hex, <span class="hljs-number">16</span>);                        <span class="hljs-comment">// 十六进制 → 数字</span>
+<span class="hljs-keyword">const</span> <span class="hljs-function"><span class="hljs-title">toHex32</span></span>  = <span class="hljs-variable">n</span> =&gt; <span class="hljs-function">BigInt</span>(n).<span class="hljs-method">toString</span>(<span class="hljs-number">16</span>).<span class="hljs-method">padStart</span>(<span class="hljs-number">64</span>, <span class="hljs-string">'0'</span>); <span class="hljs-comment">// 整数 → 32字节补零</span>
+<span class="hljs-keyword">const</span> <span class="hljs-function"><span class="hljs-title">toHexAddr</span></span> = <span class="hljs-variable">a</span> =&gt; a.<span class="hljs-method">slice</span>(<span class="hljs-number">2</span>).<span class="hljs-method">toLowerCase</span>().<span class="hljs-method">padStart</span>(<span class="hljs-number">64</span>, <span class="hljs-string">'0'</span>); <span class="hljs-comment">// 地址 → 32字节补零</span>
+
+<span class="hljs-comment">// 地址由私钥本地推导（私钥 → ECDSA 公钥 → keccak256 → 取后 20 字节），</span>
+<span class="hljs-comment">// 不需要连接任何钱包、无需用户授权，离线就能算出</span>
+<span class="hljs-keyword">const</span> me = wallet.<span class="hljs-property">address</span>; <span class="hljs-comment">// 本钱包的地址，后面所有操作都用它</span>
+
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 1. 链信息查询：链 ID、块高、gas 价格、ETH 余额、区块查询</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 链 ID（十六进制）：1 = 以太坊主网，56 = BSC，137 = Polygon</span>
+<span class="hljs-keyword">const</span> chainIdHex = <span class="hljs-keyword">await</span> <span class="hljs-function">eth</span>(<span class="hljs-string">'eth_chainId'</span>);
+
+<span class="hljs-comment">// 当前最新块高</span>
+<span class="hljs-keyword">const</span> blockHex = <span class="hljs-keyword">await</span> <span class="hljs-function">eth</span>(<span class="hljs-string">'eth_blockNumber'</span>);
+
+<span class="hljs-comment">// 节点建议的 gas 价格（十六进制 wei）</span>
+<span class="hljs-keyword">const</span> gasPriceHex = <span class="hljs-keyword">await</span> <span class="hljs-function">eth</span>(<span class="hljs-string">'eth_gasPrice'</span>);
+
+<span class="hljs-comment">// 查自己的 ETH 余额：参数 = [地址, 区块状态]（区块状态见文档第二节）</span>
+<span class="hljs-keyword">const</span> balanceHex = <span class="hljs-keyword">await</span> <span class="hljs-function">eth</span>(<span class="hljs-string">'eth_getBalance'</span>, [me, <span class="hljs-string">'latest'</span>]);
+
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>({
+  <span class="hljs-property">账户</span>: me,
+  <span class="hljs-property">链ID</span>: <span class="hljs-function">toNum</span>(chainIdHex),
+  <span class="hljs-property">块高</span>: <span class="hljs-function">toNum</span>(blockHex),
+  <span class="hljs-property">gas价格Gwei</span>: <span class="hljs-function">toNum</span>(gasPriceHex) / <span class="hljs-number">1e9</span>,
+  <span class="hljs-property">ETH余额</span>: <span class="hljs-function">toNum</span>(balanceHex) / <span class="hljs-number">1e18</span>  <span class="hljs-comment">// 1 ETH = 10^18 wei</span>
+});
+
+<span class="hljs-comment">// 区块查询：按块高查区块详情，参数 = [区块号(十六进制), 是否返回完整交易对象]</span>
+<span class="hljs-comment">// false 只返回交易哈希列表（更快），true 返回完整交易对象数组</span>
+<span class="hljs-keyword">const</span> block = <span class="hljs-keyword">await</span> <span class="hljs-function">eth</span>(<span class="hljs-string">'eth_getBlockByNumber'</span>, [blockHex, <span class="hljs-keyword">false</span>]);
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>({
+  <span class="hljs-property">出块时间</span>: <span class="hljs-keyword">new</span> <span class="hljs-function">Date</span>(<span class="hljs-function">toNum</span>(block.<span class="hljs-property">timestamp</span>) * <span class="hljs-number">1000</span>), <span class="hljs-comment">// 时间戳是秒，转毫秒</span>
+  <span class="hljs-property">交易数</span>: block.<span class="hljs-property">transactions</span>.<span class="hljs-property">length</span>,
+  <span class="hljs-property">本块gasUsed</span>: <span class="hljs-function">toNum</span>(block.<span class="hljs-property">gasUsed</span>)
+});
+
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 2. 以太币一笔转账交易、结果查询（构造 → 本地签名 → 广播 → 等回执）</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 完整流程对应文档第四节「交易签名过程」：查询和广播是网络请求，签名在本地完成</span>
+<span class="hljs-comment">// 查交易序号：'pending' 会把还没上链的交易也数进去，防止并发发多笔时撞号</span>
+<span class="hljs-keyword">const</span> nonceHex = <span class="hljs-keyword">await</span> <span class="hljs-function">eth</span>(<span class="hljs-string">'eth_getTransactionCount'</span>, [me, <span class="hljs-string">'pending'</span>]);
+
+<span class="hljs-comment">// 构造交易并本地签名（不产生任何网络请求）</span>
+<span class="hljs-keyword">const</span> signedTx = <span class="hljs-keyword">await</span> wallet.<span class="hljs-method">signTransaction</span>({
+  <span class="hljs-property">to</span>: <span class="hljs-string">'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'</span>, <span class="hljs-comment">// 收款地址</span>
+  <span class="hljs-property">value</span>: <span class="hljs-number">10000000000000000n</span>,               <span class="hljs-comment">// 0.01 ETH = 10^16 wei（BigInt）</span>
+  <span class="hljs-property">nonce</span>: <span class="hljs-function">parseInt</span>(nonceHex, <span class="hljs-number">16</span>),           <span class="hljs-comment">// 交易序号，必须严格连续</span>
+  <span class="hljs-property">chainId</span>: <span class="hljs-number">1</span>,                              <span class="hljs-comment">// 主网，签名混入链 ID 防跨链重放</span>
+  <span class="hljs-property">gasLimit</span>: <span class="hljs-number">21000n</span>,                       <span class="hljs-comment">// 普通转账固定 21000</span>
+  <span class="hljs-property">maxFeePerGas</span>: <span class="hljs-function">BigInt</span>(gasPriceHex) * <span class="hljs-number">2n</span>, <span class="hljs-comment">// 最大单价，给 2 倍余量（gasPrice 第 1 步查的）</span>
+  <span class="hljs-property">maxPriorityFeePerGas</span>: <span class="hljs-number">2000000000n</span>       <span class="hljs-comment">// 小费 2 Gwei</span>
+});
+
+<span class="hljs-comment">// 广播：签名已在本地完成，这里只是普通网络请求，和查询没区别</span>
+<span class="hljs-keyword">const</span> ethTxHash = <span class="hljs-keyword">await</span> <span class="hljs-function">eth</span>(<span class="hljs-string">'eth_sendRawTransaction'</span>, [signedTx]);
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'交易已广播:'</span>, ethTxHash);
+
+<span class="hljs-comment">// 结果查询：轮询回执直到上链（见文档第三节 eth_getTransactionReceipt 卡片）</span>
+<span class="hljs-comment">// 注意：拿到哈希 ≠ 成功，合约执行 revert 也会出块，必须看 status</span>
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">waitReceipt</span>(<span class="hljs-params">hash, interval = <span class="hljs-number">3000</span></span>) </span>{
+  <span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>) {
+    <span class="hljs-keyword">const</span> r = <span class="hljs-keyword">await</span> <span class="hljs-function">eth</span>(<span class="hljs-string">'eth_getTransactionReceipt'</span>, [hash]);
+    <span class="hljs-keyword">if</span> (r) <span class="hljs-keyword">return</span> r; <span class="hljs-comment">// null = 还没上链，继续等</span>
+    <span class="hljs-keyword">await</span> <span class="hljs-keyword">new</span> <span class="hljs-function">Promise</span>(<span class="hljs-variable">resolve</span> =&gt; <span class="hljs-method">setTimeout</span>(resolve, interval));
+  }
+}
+
+<span class="hljs-keyword">const</span> rec1 = <span class="hljs-keyword">await</span> <span class="hljs-function">waitReceipt</span>(ethTxHash);
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>({
+  <span class="hljs-property">执行结果</span>: rec1.<span class="hljs-property">status</span> === <span class="hljs-string">'0x1'</span> ? <span class="hljs-string">'✅ 成功'</span> : <span class="hljs-string">'❌ 失败'</span>,
+  <span class="hljs-property">所在区块</span>: <span class="hljs-function">toNum</span>(rec1.<span class="hljs-property">blockNumber</span>),
+  <span class="hljs-property">消耗gas</span>: <span class="hljs-function">toNum</span>(rec1.<span class="hljs-property">gasUsed</span>)
+});
+
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 3. USDC 一笔转账、结果查询（合约调用：data 编码 → 签名 → 广播 → 验证）</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 转账 10 USDC = 调 transfer(address,uint256)：</span>
+<span class="hljs-comment">//   data = 选择器 0xa9059cbb（keccak256("transfer(address,uint256)") 前 4 字节）</span>
+<span class="hljs-comment">//        + 收款人地址(32字节) + 金额(32字节)</span>
+<span class="hljs-comment">//   10 USDC = 10000000 最小单位（USDC 6 位小数）</span>
+<span class="hljs-comment">//   ⚠️ to 填代币合约地址，收款人写在 data 里（常见错误见对应文档卡片）</span>
+<span class="hljs-keyword">const</span> USDC = <span class="hljs-string">'0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'</span>; <span class="hljs-comment">// USDC 合约地址</span>
+<span class="hljs-keyword">const</span> transferData = <span class="hljs-string">'0xa9059cbb'</span>
+  + <span class="hljs-function">toHexAddr</span>(<span class="hljs-string">'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'</span>) <span class="hljs-comment">// 参数1：收款人</span>
+  + <span class="hljs-function">toHex32</span>(<span class="hljs-string">'10000000'</span>);                                     <span class="hljs-comment">// 参数2：金额</span>
+
+<span class="hljs-comment">// 合约调用的 gas 消耗比普通转账高得多，先预估（见文档第三节）</span>
+<span class="hljs-comment">// 预估失败会直接报错，说明这笔调用上链也必失败，提前拦截</span>
+<span class="hljs-keyword">const</span> gasHex = <span class="hljs-keyword">await</span> <span class="hljs-function">eth</span>(<span class="hljs-string">'eth_estimateGas'</span>, [{ <span class="hljs-property">from</span>: me, <span class="hljs-property">to</span>: USDC, <span class="hljs-property">data</span>: transferData }]);
+
+<span class="hljs-comment">// 重新查 nonce：'pending' 已把上一笔未上链的交易数进去，所以自动得到下一笔的序号</span>
+<span class="hljs-keyword">const</span> nonceHex2 = <span class="hljs-keyword">await</span> <span class="hljs-function">eth</span>(<span class="hljs-string">'eth_getTransactionCount'</span>, [me, <span class="hljs-string">'pending'</span>]);
+
+<span class="hljs-comment">// 构造 + 本地签名：to 是合约、value 为 0、金额和收款人都在 data 里</span>
+<span class="hljs-keyword">const</span> signedTx2 = <span class="hljs-keyword">await</span> wallet.<span class="hljs-method">signTransaction</span>({
+  <span class="hljs-property">to</span>: USDC,                 <span class="hljs-comment">// ⚠️ 合约地址，不是收款人地址</span>
+  <span class="hljs-property">value</span>: <span class="hljs-number">0n</span>,               <span class="hljs-comment">// 不随交易发 ETH，金额在 data 里</span>
+  <span class="hljs-property">data</span>: transferData,      <span class="hljs-comment">// 编码好的调用数据</span>
+  <span class="hljs-property">nonce</span>: <span class="hljs-function">parseInt</span>(nonceHex2, <span class="hljs-number">16</span>),
+  <span class="hljs-property">chainId</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-property">gasLimit</span>: <span class="hljs-function">BigInt</span>(gasHex) + <span class="hljs-number">20000n</span>,          <span class="hljs-comment">// 预估值再加一点余量</span>
+  <span class="hljs-property">maxFeePerGas</span>: <span class="hljs-function">BigInt</span>(gasPriceHex) * <span class="hljs-number">2n</span>,
+  <span class="hljs-property">maxPriorityFeePerGas</span>: <span class="hljs-number">2000000000n</span>
+});
+
+<span class="hljs-keyword">const</span> tokenTxHash = <span class="hljs-keyword">await</span> <span class="hljs-function">eth</span>(<span class="hljs-string">'eth_sendRawTransaction'</span>, [signedTx2]);
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'交易已广播:'</span>, tokenTxHash);
+
+<span class="hljs-comment">// 结果查询 1：等回执确认执行结果</span>
+<span class="hljs-keyword">const</span> rec2 = <span class="hljs-keyword">await</span> <span class="hljs-function">waitReceipt</span>(tokenTxHash);
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'代币转账:'</span>, rec2.<span class="hljs-property">status</span> === <span class="hljs-string">'0x1'</span> ? <span class="hljs-string">'✅ 成功'</span> : <span class="hljs-string">'❌ 失败'</span>);
+<span class="hljs-comment">// rec2.logs 里就是这笔转账触发的 Transfer 事件（解析方法见文档 eth_getLogs 卡片）</span>
+
+<span class="hljs-comment">// 结果查询 2：用 eth_call 读链上状态验证转账生效（合约只读调用，见文档第三节）</span>
+<span class="hljs-comment">// data = balanceOf(address) 的选择器 0x70a08231 + 自己的地址(32字节)</span>
+<span class="hljs-keyword">const</span> balanceData = <span class="hljs-string">'0x70a08231'</span> + <span class="hljs-function">toHexAddr</span>(me);
+<span class="hljs-keyword">const</span> usdcHex = <span class="hljs-keyword">await</span> <span class="hljs-function">eth</span>(<span class="hljs-string">'eth_call'</span>, [{ <span class="hljs-property">to</span>: USDC, <span class="hljs-property">data</span>: balanceData }, <span class="hljs-string">'latest'</span>]);
+<span class="hljs-comment">// 返回 uint256 直接 BigInt 转换，除以 10^6（USDC 小数位）得到可读余额</span>
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'转账后 USDC 余额:'</span>, <span class="hljs-function">Number</span>(<span class="hljs-function">BigInt</span>(usdcHex)) / <span class="hljs-number">1e6</span>);
+
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 小结：一笔代币转账的两层"结果查询"为什么缺一不可</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// USDC 转账完整链路：</span>
+<span class="hljs-comment">//   ① 广播 transfer 交易        → 写操作</span>
+<span class="hljs-comment">//   ② waitReceipt(tokenTxHash) → 结果查询1：等回执，确认"这笔交易执行成功了"</span>
+<span class="hljs-comment">//   ③ eth_call(balanceOf)      → 结果查询2：读余额，确认"链上状态真的变了"</span>
+<span class="hljs-comment">// ② 和 ③ 是互补的：回执成功说明交易执行没 revert，但"执行成功"不等于</span>
+<span class="hljs-comment">// "结果符合预期"——比如代币合约有转账手续费逻辑，实际到账比你转的少。</span>
+<span class="hljs-comment">// 最后再用 eth_call 读一次余额，才是站在用户视角的最终确认。</span>
+</code></pre>
+                <div class="note">
+                    <strong>💡 钱包 App 的本质就这么多：</strong>全程只有两类网络请求——<strong>查询</strong>（<code>eth_getBalance</code>、<code>eth_call</code> 等）和<strong>广播</strong>（<code>eth_sendRawTransaction</code>），此外的地址派生、消息签名、交易签名全部是<strong>本地密码学运算，不产生任何网络请求</strong>。上面 0~3 就是钱包与链交互的全部：读（1）、签（2~3 本地）、发（2~3 广播）。
+                </div>
+                <div class="warning">
+                    <strong>⚠️ 私钥安全（钱包 App 的生命线）：</strong>示例用 <code>localStorage</code> 只是演示流程，实际钱包必须把私钥加密后存入系统安全区（iOS Keychain / Android Keystore / Secure Enclave），最好再设口令二次加密。<strong>私钥一旦泄露 = 该地址全部资产丢失且无法撤销。</strong>
+                </div>
+            </div>
+
+            <h2 id="full-example-ethers">六、完整示例（ethers）</h2>
+
+            <p>用 <strong>ethers.js</strong> 把第五节的全流程重写一遍：Provider 封装了所有查询类 RPC（内部就是第一节讲的 JSON-RPC 网络请求），Wallet 封装了本地签名和广播。第五节手写的 nonce 查询、hex 换算、data 编码、轮询回执，库全部代劳——但底层发生的网络请求一模一样。</p>
+
+            <div class="method-card" id="full-example-ethers-code">
+                <div class="method-header">
+                    <span class="method-name">ethers 全流程示例（Provider 查询 + Wallet 签名）</span>
+                    <span class="method-no-auth">npm install ethers</span>
+                </div>
+<pre><code><span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 0. 基础封装：Provider 管"查询 + 广播"，Wallet 管本地签名</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-keyword">import</span> { ethers } <span class="hljs-keyword">from</span> <span class="hljs-string">'ethers'</span>;
+
+<span class="hljs-keyword">const</span> RPC_URL = <span class="hljs-string">'https://ethereum-rpc.publicnode.com'</span>; <span class="hljs-comment">// 公共 RPC 端点，换成自己的</span>
+
+<span class="hljs-comment">// Provider 内部 = 第五节手写的 eth() 网络请求封装（JSON-RPC POST），只是拼参数/解析 hex 交给了库</span>
+<span class="hljs-keyword">const</span> provider = <span class="hljs-keyword">new</span> ethers.<span class="hljs-function">JsonRpcProvider</span>(RPC_URL);
+
+<span class="hljs-comment">// 私钥保存在本地（实际项目必须加密存储，见第五节⚠️）。传入 provider 后 Wallet 同时具备签名 + 广播能力</span>
+<span class="hljs-keyword">const</span> wallet = <span class="hljs-keyword">new</span> ethers.<span class="hljs-function">Wallet</span>(localStorage.<span class="hljs-method">getItem</span>(<span class="hljs-string">'privateKey'</span>), provider);
+<span class="hljs-keyword">const</span> me = wallet.<span class="hljs-property">address</span>; <span class="hljs-comment">// 地址由私钥本地派生，无需授权</span>
+
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 1. 链信息查询：链 ID、块高、gas 价格、ETH 余额、区块查询</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-keyword">const</span> network     = <span class="hljs-keyword">await</span> provider.<span class="hljs-method">getNetwork</span>();      <span class="hljs-comment">// = eth_chainId，返回 { chainId: 1n }</span>
+<span class="hljs-keyword">const</span> blockNumber = <span class="hljs-keyword">await</span> provider.<span class="hljs-method">getBlockNumber</span>();  <span class="hljs-comment">// = eth_blockNumber，直接返回数字</span>
+<span class="hljs-keyword">const</span> fee         = <span class="hljs-keyword">await</span> provider.<span class="hljs-method">getFeeData</span>();      <span class="hljs-comment">// = eth_gasPrice + EIP-1559 字段一次拿全</span>
+<span class="hljs-keyword">const</span> balance     = <span class="hljs-keyword">await</span> provider.<span class="hljs-method">getBalance</span>(me);    <span class="hljs-comment">// = eth_getBalance，返回 BigInt wei</span>
+<span class="hljs-keyword">const</span> block       = <span class="hljs-keyword">await</span> provider.<span class="hljs-method">getBlock</span>(blockNumber); <span class="hljs-comment">// = eth_getBlockByNumber</span>
+
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>({
+  <span class="hljs-property">链ID</span>: network.<span class="hljs-property">chainId</span>,                              <span class="hljs-comment">// 已转成数字，不用再 parseInt(hex,16)</span>
+  <span class="hljs-property">块高</span>: blockNumber,
+  <span class="hljs-property">gas价格Gwei</span>: ethers.<span class="hljs-method">formatUnits</span>(fee.<span class="hljs-property">gasPrice</span>, <span class="hljs-string">'gwei'</span>), <span class="hljs-comment">// wei → Gwei 可读字符串</span>
+  <span class="hljs-property">ETH余额</span>: ethers.<span class="hljs-method">formatEther</span>(balance),               <span class="hljs-comment">// wei → ETH，自动除 10^18</span>
+  <span class="hljs-property">出块时间</span>: <span class="hljs-keyword">new</span> <span class="hljs-function">Date</span>(block.<span class="hljs-property">timestamp</span> * <span class="hljs-number">1000</span>)          <span class="hljs-comment">// 时间戳已转成数字秒</span>
+});
+
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 2. 以太币一笔转账交易、结果查询</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-keyword">const</span> tx = <span class="hljs-keyword">await</span> wallet.<span class="hljs-method">sendTransaction</span>({
+  <span class="hljs-property">to</span>: <span class="hljs-string">'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'</span>,
+  <span class="hljs-property">value</span>: ethers.<span class="hljs-method">parseEther</span>(<span class="hljs-string">'0.01'</span>) <span class="hljs-comment">// '0.01' ETH → 10^16 wei，不用手写一串 0</span>
+});
+<span class="hljs-comment">// 这一行内部完成了第五节第 2 步的全部网络请求和本地运算：</span>
+<span class="hljs-comment">//   查 nonce(eth_getTransactionCount 'pending') → 补全 EIP-1559 字段(getFeeData)</span>
+<span class="hljs-comment">//   → RLP 序列化 + 私钥签名(本地) → 广播(eth_sendRawTransaction)</span>
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'交易已广播:'</span>, tx.<span class="hljs-property">hash</span>);
+
+<span class="hljs-comment">// 结果查询：tx.wait() = 第五节手写的 waitReceipt 轮询（内部轮询 eth_getTransactionReceipt）</span>
+<span class="hljs-comment">// v6 返回 null（被节点剔除）或回执对象；status 直接是数字 1/0，不再是 hex 字符串</span>
+<span class="hljs-keyword">const</span> rec1 = <span class="hljs-keyword">await</span> tx.<span class="hljs-method">wait</span>();
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>({
+  <span class="hljs-property">执行结果</span>: rec1.<span class="hljs-property">status</span> === <span class="hljs-number">1</span> ? <span class="hljs-string">'✅ 成功'</span> : <span class="hljs-string">'❌ 失败'</span>,
+  <span class="hljs-property">所在区块</span>: rec1.<span class="hljs-property">blockNumber</span>,
+  <span class="hljs-property">消耗gas</span>: rec1.<span class="hljs-property">gasUsed</span>.<span class="hljs-method">toString</span>()
+});
+
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 3. USDC 一笔转账、结果查询</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 合约实例：人类可读 ABI，库据此算函数选择器并做 ABI 编码</span>
+<span class="hljs-comment">//   = 第五节手写的 '0xa9059cbb' + toHexAddr(收款人) + toHex32(金额)</span>
+<span class="hljs-comment">// 传 wallet（带签名能力）→ 可写；只传 provider → 只读</span>
+<span class="hljs-keyword">const</span> USDC = <span class="hljs-string">'0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'</span>;
+<span class="hljs-keyword">const</span> usdc = <span class="hljs-keyword">new</span> ethers.<span class="hljs-function">Contract</span>(USDC, [
+  <span class="hljs-string">'function transfer(address to, uint256 amount) returns (bool)'</span>,
+  <span class="hljs-string">'function balanceOf(address owner) view returns (uint256)'</span>
+], wallet);
+
+<span class="hljs-keyword">const</span> tx2 = <span class="hljs-keyword">await</span> usdc.<span class="hljs-method">transfer</span>(
+  <span class="hljs-string">'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'</span>,
+  <span class="hljs-number">10000000n</span> <span class="hljs-comment">// 10 USDC（6 位小数），也可写 parseUnits('10', 6)</span>
+);
+<span class="hljs-comment">// 内部流程：编码 data → eth_estimateGas → 查 nonce → 本地签名 → 广播，to 自动填合约地址</span>
+
+<span class="hljs-comment">// 结果查询 1：等回执。rec2.logs 已自动按 ABI 解码出 Transfer 事件参数</span>
+<span class="hljs-comment">// （第五节要用 eth_getLogs 手动解析 topics，这里直接拿 args）</span>
+<span class="hljs-keyword">const</span> rec2 = <span class="hljs-keyword">await</span> tx2.<span class="hljs-method">wait</span>();
+<span class="hljs-keyword">const</span> transferLog = rec2.<span class="hljs-property">logs</span>[<span class="hljs-number">0</span>]; <span class="hljs-comment">// 本笔转账触发的 Transfer 事件</span>
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>({
+  <span class="hljs-property">执行结果</span>: rec2.<span class="hljs-property">status</span> === <span class="hljs-number">1</span> ? <span class="hljs-string">'✅ 成功'</span> : <span class="hljs-string">'❌ 失败'</span>,
+  <span class="hljs-property">事件解码</span>: { <span class="hljs-property">from</span>: transferLog.<span class="hljs-property">args</span>[<span class="hljs-number">0</span>], <span class="hljs-property">to</span>: transferLog.<span class="hljs-property">args</span>[<span class="hljs-number">1</span>], <span class="hljs-property">value</span>: transferLog.<span class="hljs-property">args</span>[<span class="hljs-number">2</span>].<span class="hljs-method">toString</span>() }
+});
+
+<span class="hljs-comment">// 结果查询 2：读余额做最终确认（= eth_call 只读调用，回执成功 ≠ 余额符合预期，见第五节小结）</span>
+<span class="hljs-keyword">const</span> bal = <span class="hljs-keyword">await</span> usdc.<span class="hljs-method">balanceOf</span>(me);
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'转账后 USDC 余额:'</span>, ethers.<span class="hljs-method">formatUnits</span>(bal, <span class="hljs-number">6</span>));
+</code></pre>
+                <div class="note">
+                    <strong>💡 与第五节的对照：</strong>第五节手写的每一步，ethers 都有对应封装——<code>eth()</code> → <code>Provider</code>、<code>waitReceipt()</code> → <code>tx.wait()</code>、手动拼 <code>data</code> → <code>Contract</code>、<code>toHex32/toHexAddr</code> → <code>parseUnits/formatUnits</code>。网络请求数量和第五节完全相同，库只是替你正确地拼参数、做 hex/BigInt 换算和 ABI 编解码。
+                </div>
+            </div>
+
+            <h2 id="full-example-viem">七、完整示例（viem）</h2>
+
+            <p><strong>viem</strong> 是 TypeScript 优先的轻量库（wagmi 的底层），特点是<strong>显式</strong>：查询和签名分成两个 client，每个方法对应一个明确的 RPC 网络请求，没有隐藏的自动行为。返回值统一用 <code>BigInt</code>，单位换算全部显式调用工具函数。</p>
+
+            <div class="method-card" id="full-example-viem-code">
+                <div class="method-header">
+                    <span class="method-name">viem 全流程示例（publicClient 查询 + walletClient 签名）</span>
+                    <span class="method-no-auth">npm install viem</span>
+                </div>
+<pre><code><span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 0. 基础封装：publicClient 管"查询"，walletClient 管"签名 + 广播"</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-keyword">import</span> {
+  createPublicClient, createWalletClient, http,
+  parseEther, parseUnits, formatEther, formatUnits
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'viem'</span>;
+<span class="hljs-keyword">import</span> { mainnet } <span class="hljs-keyword">from</span> <span class="hljs-string">'viem/chains'</span>;
+<span class="hljs-keyword">import</span> { privateKeyToAccount } <span class="hljs-keyword">from</span> <span class="hljs-string">'viem/accounts'</span>;
+
+<span class="hljs-keyword">const</span> RPC_URL = <span class="hljs-string">'https://ethereum-rpc.publicnode.com'</span>; <span class="hljs-comment">// 公共 RPC 端点，换成自己的</span>
+
+<span class="hljs-comment">// 查询客户端：所有只读 RPC 都从它发起（内部 = JSON-RPC 网络请求）</span>
+<span class="hljs-keyword">const</span> publicClient = <span class="hljs-function">createPublicClient</span>({
+  <span class="hljs-property">chain</span>: mainnet,
+  <span class="hljs-property">transport</span>: <span class="hljs-function">http</span>(RPC_URL) <span class="hljs-comment">// HTTP 传输层，等价于第五节的 fetch 封装</span>
+});
+
+<span class="hljs-comment">// 私钥 → 账户：地址本地派生（和第五节一致，无需任何授权）</span>
+<span class="hljs-comment">// ⚠️ viem 不替你存私钥，实际项目从 Keychain/Keystore 安全读入，用完即弃</span>
+<span class="hljs-keyword">const</span> account = <span class="hljs-function">privateKeyToAccount</span>(<span class="hljs-string">'0x...'</span>);
+
+<span class="hljs-comment">// 签名客户端：绑定账户后可以本地签名并广播交易</span>
+<span class="hljs-keyword">const</span> walletClient = <span class="hljs-function">createWalletClient</span>({
+  <span class="hljs-property">account</span>,          <span class="hljs-comment">// 本地私钥账户（传连接器 connector 则变成 DApp 外接钱包模式）</span>
+  <span class="hljs-property">chain</span>: mainnet,
+  <span class="hljs-property">transport</span>: <span class="hljs-function">http</span>(RPC_URL)
+});
+
+<span class="hljs-keyword">const</span> me = account.<span class="hljs-property">address</span>;
+
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 1. 链信息查询：链 ID、块高、gas 价格、ETH 余额、区块查询</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 每个方法就是一个显式的 RPC 请求，注释里标了对应的底层方法</span>
+<span class="hljs-keyword">const</span> chainId     = <span class="hljs-keyword">await</span> publicClient.<span class="hljs-method">getChainId</span>();             <span class="hljs-comment">// = eth_chainId</span>
+<span class="hljs-keyword">const</span> blockNumber = <span class="hljs-keyword">await</span> publicClient.<span class="hljs-method">getBlockNumber</span>();         <span class="hljs-comment">// = eth_blockNumber</span>
+<span class="hljs-keyword">const</span> gasPrice    = <span class="hljs-keyword">await</span> publicClient.<span class="hljs-method">getGasPrice</span>();            <span class="hljs-comment">// = eth_gasPrice，BigInt wei</span>
+<span class="hljs-keyword">const</span> balance     = <span class="hljs-keyword">await</span> publicClient.<span class="hljs-method">getBalance</span>({ <span class="hljs-property">address</span>: me }); <span class="hljs-comment">// = eth_getBalance，BigInt wei</span>
+<span class="hljs-keyword">const</span> block       = <span class="hljs-keyword">await</span> publicClient.<span class="hljs-method">getBlock</span>({ <span class="hljs-property">blockNumber</span> });   <span class="hljs-comment">// = eth_getBlockByNumber</span>
+
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>({
+  <span class="hljs-property">链ID</span>: chainId,
+  <span class="hljs-property">块高</span>: blockNumber,
+  <span class="hljs-property">gas价格Gwei</span>: <span class="hljs-function">formatUnits</span>(gasPrice, <span class="hljs-number">9</span>),     <span class="hljs-comment">// wei → Gwei（9 位小数），显式换算</span>
+  <span class="hljs-property">ETH余额</span>: <span class="hljs-function">formatEther</span>(balance),             <span class="hljs-comment">// = formatUnits(balance, 18) 的简写</span>
+  <span class="hljs-property">出块时间</span>: <span class="hljs-keyword">new</span> <span class="hljs-function">Date</span>(<span class="hljs-function">Number</span>(block.<span class="hljs-property">timestamp</span>) * <span class="hljs-number">1000</span>) <span class="hljs-comment">// timestamp 是 BigInt 秒</span>
+});
+
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 2. 以太币一笔转账交易、结果查询</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 签名 + 广播，内部完成第五节第 2 步的全部步骤：</span>
+<span class="hljs-comment">//   查 nonce(eth_getTransactionCount 'pending') → 补全 EIP-1559 字段</span>
+<span class="hljs-comment">//   → 本地私钥签名 → 广播(eth_sendRawTransaction)，返回交易哈希</span>
+<span class="hljs-keyword">const</span> hash = <span class="hljs-keyword">await</span> walletClient.<span class="hljs-method">sendTransaction</span>({
+  <span class="hljs-property">to</span>: <span class="hljs-string">'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'</span>,
+  <span class="hljs-property">value</span>: <span class="hljs-function">parseEther</span>(<span class="hljs-string">'0.01'</span>) <span class="hljs-comment">// '0.01' ETH → 10^16 wei（BigInt）</span>
+});
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'交易已广播:'</span>, hash);
+
+<span class="hljs-comment">// 结果查询：等回执 = 第五节手写的 waitReceipt 轮询（内部轮询 eth_getTransactionReceipt）</span>
+<span class="hljs-comment">// viem 把 status 转成了可读字符串：'success' | 'reverted'，不用再和 '0x1' 比较</span>
+<span class="hljs-keyword">const</span> rec1 = <span class="hljs-keyword">await</span> publicClient.<span class="hljs-method">waitForTransactionReceipt</span>({ hash });
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>({
+  <span class="hljs-property">执行结果</span>: rec1.<span class="hljs-property">status</span> === <span class="hljs-string">'success'</span> ? <span class="hljs-string">'✅ 成功'</span> : <span class="hljs-string">'❌ 失败'</span>,
+  <span class="hljs-property">所在区块</span>: rec1.<span class="hljs-property">blockNumber</span>,
+  <span class="hljs-property">消耗gas</span>: rec1.<span class="hljs-property">gasUsed</span> <span class="hljs-comment">// 已经是 BigInt，直接打印</span>
+});
+
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 3. USDC 一笔转账、结果查询</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// viem 内置了标准 ERC20 ABI，不用手写；也可自己定义精简版</span>
+<span class="hljs-keyword">import</span> { erc20Abi } <span class="hljs-keyword">from</span> <span class="hljs-string">'viem'</span>;
+<span class="hljs-keyword">const</span> USDC = <span class="hljs-string">'0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'</span> <span class="hljs-keyword">as</span> <span class="hljs-keyword">const</span>; <span class="hljs-comment">// as const：让 TS 推导字面量类型</span>
+
+<span class="hljs-comment">// 编码 data（选择器 + ABI 编码）→ 本地签名 → 广播，= 第五节手写的 transferData 全过程</span>
+<span class="hljs-comment">// to 自动填合约地址，收款人和金额作为 args 传给 ABI 编码器</span>
+<span class="hljs-keyword">const</span> tokenHash = <span class="hljs-keyword">await</span> walletClient.<span class="hljs-method">writeContract</span>({
+  <span class="hljs-property">address</span>: USDC,
+  <span class="hljs-property">abi</span>: erc20Abi,
+  <span class="hljs-property">functionName</span>: <span class="hljs-string">'transfer'</span>,
+  <span class="hljs-property">args</span>: [<span class="hljs-string">'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'</span>, <span class="hljs-function">parseUnits</span>(<span class="hljs-string">'10'</span>, <span class="hljs-number">6</span>)] <span class="hljs-comment">// 10 USDC（6 位小数）</span>
+});
+
+<span class="hljs-comment">// 结果查询 1：等回执，确认交易执行成功</span>
+<span class="hljs-keyword">const</span> rec2 = <span class="hljs-keyword">await</span> publicClient.<span class="hljs-method">waitForTransactionReceipt</span>({ <span class="hljs-property">hash</span>: tokenHash });
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'USDC 转账:'</span>, rec2.<span class="hljs-property">status</span> === <span class="hljs-string">'success'</span> ? <span class="hljs-string">'✅ 成功'</span> : <span class="hljs-string">'❌ 失败'</span>);
+<span class="hljs-comment">// rec2.logs 里的 Transfer 事件是原始 hex topics/data，需用 decodeEventLog 解码</span>
+<span class="hljs-comment">// （viem 风格是显式解码，见 viem 文档 decodeEventLog；ethers 会自动解码，见第六节）</span>
+
+<span class="hljs-comment">// 结果查询 2：读余额做最终确认（readContract = eth_call 只读调用，见第五节小结）</span>
+<span class="hljs-comment">// 返回值已按 ABI 解码成 BigInt，不用再手动 BigInt(hex)</span>
+<span class="hljs-keyword">const</span> bal = <span class="hljs-keyword">await</span> publicClient.<span class="hljs-method">readContract</span>({
+  <span class="hljs-property">address</span>: USDC,
+  <span class="hljs-property">abi</span>: erc20Abi,
+  <span class="hljs-property">functionName</span>: <span class="hljs-string">'balanceOf'</span>,
+  <span class="hljs-property">args</span>: [me]
+});
+<span class="hljs-variable">console</span>.<span class="hljs-method">log</span>(<span class="hljs-string">'转账后 USDC 余额:'</span>, <span class="hljs-function">formatUnits</span>(bal, <span class="hljs-number">6</span>));
+</code></pre>
+                <div class="note">
+                    <strong>💡 viem 与 ethers 的风格差异：</strong>viem 把「查询」（publicClient）和「签名」（walletClient）拆成两个对象，正好对应第五节"两类网络请求"的划分；ethers 则合并在一个 Provider/Wallet 体系里。viem 的返回值严格 <code>BigInt</code>、状态是 <code>'success' | 'reverted'</code> 字符串、事件不自动解码——处处显式，TypeScript 类型推导更好；ethers 更"自动化"，上手更快。
+                </div>
+            </div>
+
+            <h2 id="full-example-wagmi">八、完整示例（wagmi）</h2>
+
+            <p><strong>wagmi</strong> 是构建在 viem 之上的 <strong>React Hooks 库</strong>，面向 <strong>DApp 前端</strong>：它不接触私钥，签名交给用户连接的钱包（MetaMask、WalletConnect 等连接器，即 <code>dapp-wallet-methods</code> 文档里的 <code>eth_requestAccounts</code> 流程）。同一个流程在 wagmi 里变成「声明式 Hook」——每个 Hook 内部就是对应的 viem action（也就是若干 RPC 网络请求），并自动处理缓存和刷新。</p>
+
+            <div class="method-card" id="full-example-wagmi-code">
+                <div class="method-header">
+                    <span class="method-name">wagmi 全流程示例（React Hooks，DApp 视角）</span>
+                    <span class="method-no-auth">npm install wagmi viem react</span>
+                </div>
+<pre><code><span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 0. 基础封装：连接交给连接器（用户自己钱包签名），App 不碰私钥</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 与第五~七节的根本区别：私钥不在本 App 手里。签名由用户的钱包完成，</span>
+<span class="hljs-comment">// App 只负责发起请求和展示结果——这正是 DApp 和钱包 App 的分工</span>
+<span class="hljs-comment">// main.tsx 里还需包一层 Config：createConfig({ chains: [mainnet], transports })</span>
+<span class="hljs-comment">// + WagmiProvider，此处从组件内部写起</span>
+
+<span class="hljs-keyword">import</span> {
+  useAccount, useChainId, useBlockNumber, useGasPrice, useBalance,
+  useSendTransaction, useWaitForTransactionReceipt,
+  useWriteContract, useReadContract
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'wagmi'</span>;
+<span class="hljs-keyword">import</span> { parseEther, parseUnits, formatUnits, erc20Abi } <span class="hljs-keyword">from</span> <span class="hljs-string">'viem'</span>;
+
+<span class="hljs-keyword">const</span> USDC = <span class="hljs-string">'0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'</span> <span class="hljs-keyword">as</span> <span class="hljs-keyword">const</span>;
+<span class="hljs-keyword">const</span> RECIPIENT = <span class="hljs-string">'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'</span> <span class="hljs-keyword">as</span> <span class="hljs-keyword">const</span>;
+
+<span class="hljs-keyword">function</span> <span class="hljs-function"><span class="hljs-title">TransferPage</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-comment">// 当前连接的账户（connect() 之后自动就绪；地址来自钱包，不是本地派生）</span>
+  <span class="hljs-keyword">const</span> { <span class="hljs-property">address</span>: me, isConnected } = <span class="hljs-function">useAccount</span>();
+
+  <span class="hljs-comment">// ============================================================</span>
+  <span class="hljs-comment">// 1. 链信息查询：链 ID、块高、gas 价格、ETH 余额（声明式 Hook）</span>
+  <span class="hljs-comment">// ============================================================</span>
+  <span class="hljs-comment">// 每个 Hook = 一个 viem action = 一个 RPC 请求；数据自动缓存，</span>
+  <span class="hljs-comment">// 组件挂载时发起请求，不需要手写 async/await</span>
+  <span class="hljs-keyword">const</span> chainId = <span class="hljs-function">useChainId</span>();                                  <span class="hljs-comment">// = eth_chainId</span>
+  <span class="hljs-keyword">const</span> { <span class="hljs-property">data</span>: blockNumber } = <span class="hljs-function">useBlockNumber</span>({ <span class="hljs-property">watch</span>: <span class="hljs-keyword">true</span> });  <span class="hljs-comment">// watch: 新块自动重新查询</span>
+  <span class="hljs-keyword">const</span> { <span class="hljs-property">data</span>: gasPrice } = <span class="hljs-function">useGasPrice</span>();                       <span class="hljs-comment">// = eth_gasPrice</span>
+  <span class="hljs-keyword">const</span> { <span class="hljs-property">data</span>: balance } = <span class="hljs-function">useBalance</span>({ <span class="hljs-property">address</span>: me });           <span class="hljs-comment">// = eth_getBalance，带 formatted 可读值</span>
+
+  <span class="hljs-comment">// ============================================================</span>
+  <span class="hljs-comment">// 2. 以太币一笔转账交易、结果查询（发送 + 等回执，两个 Hook 配合）</span>
+  <span class="hljs-comment">// ============================================================</span>
+  <span class="hljs-comment">// sendTransaction 把交易交给用户钱包签名广播（钱包会弹确认框）</span>
+  <span class="hljs-keyword">const</span> { sendTransaction, <span class="hljs-property">data</span>: txHash, isPending } = <span class="hljs-function">useSendTransaction</span>();
+  <span class="hljs-comment">// hash 有值后自动开始轮询回执（= viem waitForTransactionReceipt = waitReceipt）</span>
+  <span class="hljs-keyword">const</span> { <span class="hljs-property">data</span>: rec1 } = <span class="hljs-function">useWaitForTransactionReceipt</span>({ <span class="hljs-property">hash</span>: txHash });
+
+  <span class="hljs-comment">// ============================================================</span>
+  <span class="hljs-comment">// 3. USDC 一笔转账、结果查询</span>
+  <span class="hljs-comment">// ============================================================</span>
+  <span class="hljs-comment">// writeContract：编码 data → 钱包确认签名 → 广播（to 自动是合约地址）</span>
+  <span class="hljs-keyword">const</span> { writeContract, <span class="hljs-property">data</span>: tokenHash } = <span class="hljs-function">useWriteContract</span>();
+  <span class="hljs-keyword">const</span> { <span class="hljs-property">data</span>: rec2 } = <span class="hljs-function">useWaitForTransactionReceipt</span>({ <span class="hljs-property">hash</span>: tokenHash });
+
+  <span class="hljs-comment">// 结果查询 2：读 USDC 余额（= readContract = eth_call），转账成功后自动刷新</span>
+  <span class="hljs-comment">// query.refetchAfter: 依赖的回执上链后重新拉取，保证读到转账后的余额</span>
+  <span class="hljs-keyword">const</span> { <span class="hljs-property">data</span>: usdcBalance } = <span class="hljs-function">useReadContract</span>({
+    <span class="hljs-property">address</span>: USDC,
+    <span class="hljs-property">abi</span>: erc20Abi,
+    <span class="hljs-property">functionName</span>: <span class="hljs-string">'balanceOf'</span>,
+    <span class="hljs-property">args</span>: [me],
+    <span class="hljs-property">query</span>: { <span class="hljs-property">enabled</span>: !!me } <span class="hljs-comment">// 未连接钱包时不发请求；转账上链后 watch/失效机制会自动刷新</span>
+  });
+
+  <span class="hljs-keyword">if</span> (!isConnected) <span class="hljs-keyword">return</span> &lt;<span class="hljs-variable">p</span>&gt;请先连接钱包&lt;/<span class="hljs-variable">p</span>&gt;;
+
+  <span class="hljs-keyword">return</span> (
+    &lt;<span class="hljs-variable">div</span>&gt;
+      <span class="hljs-comment">{/* 1. 链信息展示：数据由 Hook 自动维护 */}</span>
+      &lt;<span class="hljs-variable">p</span>&gt;链 ID: {chainId}｜块高: {blockNumber?.<span class="hljs-method">toString</span>()}｜
+         余额: {balance?.formatted} ETH｜gas: {gasPrice?.<span class="hljs-method">toString</span>()} wei&lt;/<span class="hljs-variable">p</span>&gt;
+
+      <span class="hljs-comment">{/* 2. ETH 转账：点击 → 钱包弹窗确认 → 签名广播 → rec1 自动更新 */}</span>
+      &lt;<span class="hljs-variable">button</span> <span class="hljs-variable">onClick</span>={() =&gt; <span class="hljs-method">sendTransaction</span>({
+        to: RECIPIENT,
+        value: <span class="hljs-function">parseEther</span>(<span class="hljs-string">'0.01'</span>)
+      })} disabled={isPending}&gt;
+        转 0.01 ETH
+      &lt;/<span class="hljs-variable">button</span>&gt;
+      {rec1 &amp;&amp; &lt;<span class="hljs-variable">p</span>&gt;ETH 转账: {rec1.status === <span class="hljs-string">'success'</span> ? <span class="hljs-string">'✅ 成功'</span> : <span class="hljs-string">'❌ 失败'</span>}（区块 {rec1.blockNumber}）&lt;/<span class="hljs-variable">p</span>&gt;}
+
+      <span class="hljs-comment">{/* 3. USDC 转账：writeContract 编码 data，金额 10 USDC（6 位小数） */}</span>
+      &lt;<span class="hljs-variable">button</span> <span class="hljs-variable">onClick</span>={() =&gt; <span class="hljs-method">writeContract</span>({
+        address: USDC,
+        abi: erc20Abi,
+        functionName: <span class="hljs-string">'transfer'</span>,
+        args: [RECIPIENT, <span class="hljs-function">parseUnits</span>(<span class="hljs-string">'10'</span>, <span class="hljs-number">6</span>)]
+      })}&gt;
+        转 10 USDC
+      &lt;/<span class="hljs-variable">button</span>&gt;
+      {rec2 &amp;&amp; &lt;<span class="hljs-variable">p</span>&gt;USDC 转账: {rec2.status === <span class="hljs-string">'success'</span> ? <span class="hljs-string">'✅ 成功'</span> : <span class="hljs-string">'❌ 失败'</span>}&lt;/<span class="hljs-variable">p</span>&gt;}
+      {usdcBalance &amp;&amp; &lt;<span class="hljs-variable">p</span>&gt;转账后 USDC 余额: {<span class="hljs-function">formatUnits</span>(usdcBalance, <span class="hljs-number">6</span>)}&lt;/<span class="hljs-variable">p</span>&gt;}
+    &lt;/<span class="hljs-variable">div</span>&gt;
+  );
+}
+</code></pre>
+                <div class="note">
+                    <strong>💡 三种写法怎么选：</strong>「本 App 就是钱包、私钥在自己手里」→ 用 <strong>ethers</strong>（第六节）或 <strong>viem</strong>（第七节）；「DApp 前端，让用户连自己的钱包签名」→ 用 <strong>wagmi</strong>（本节）。wagmi 底层就是 viem，所以本节的每个 Hook 都能在第七节找到对应的 action：<code>useBalance</code> → <code>getBalance</code>、<code>useSendTransaction</code> → <code>sendTransaction</code>、<code>useWaitForTransactionReceipt</code> → <code>waitForTransactionReceipt</code>、<code>useReadContract</code> → <code>readContract</code>。RPC 层面，四份示例发出的网络请求完全相同。
+                </div>
+            </div>
+
+            <h2 id="wallet-connect">九、钱包连接方式（本地私钥 vs 第三方钱包）</h2>
+
+            <p>前八节的四种写法（裸 fetch、ethers、viem、wagmi）在「钱包怎么接入」上分成两个世界：<strong>本地私钥</strong>（本 App 就是钱包，地址由私钥派生，无授权流程）和<strong>第三方钱包</strong>（连接 MetaMask 等外部钱包，私钥永远在用户手里）。本节给出四种方式在这两个世界的连接示例。</p>
+
+            <div class="method-card" id="connect-overview">
+                <div class="method-header">
+                    <span class="method-name">连接方式总览</span>
+                </div>
+                <table>
+                    <tr><th>方式</th><th>本地私钥（App 就是钱包）</th><th>第三方钱包（连接外部）</th></tr>
+                    <tr>
+                        <td>五、裸 fetch + Wallet</td>
+                        <td>✅ 唯一方式，无"连接"概念</td>
+                        <td>❌ 不可能（没有签名通道）</td>
+                    </tr>
+                    <tr>
+                        <td>六、ethers</td>
+                        <td><code>new Wallet(私钥)</code></td>
+                        <td><code>BrowserProvider(window.ethereum)</code></td>
+                    </tr>
+                    <tr>
+                        <td>七、viem</td>
+                        <td><code>privateKeyToAccount(私钥)</code></td>
+                        <td><code>transport: custom(window.ethereum)</code></td>
+                    </tr>
+                    <tr>
+                        <td>八、wagmi</td>
+                        <td>❌ 设计上不碰私钥</td>
+                        <td>✅ 连接器（injected / WalletConnect…）</td>
+                    </tr>
+                </table>
+                <div class="note">
+                    <strong>💡 "连接"的两种含义：</strong>本地方式其实<strong>没有连接动作</strong>——地址是私钥算出来的，不是授权来的；第三方方式才有真正的"连接"——通过 EIP-1193 向钱包请求账户授权（<code>eth_requestAccounts</code>），之后所有签名都递给钱包完成。
+                </div>
+            </div>
+
+            <div class="method-card" id="connect-local">
+                <div class="method-header">
+                    <span class="method-name">本地私钥连接（三库对比）</span>
+                    <span class="method-no-auth">全程无授权弹窗、无网络请求</span>
+                </div>
+<pre><code><span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 本地私钥：地址是"算"出来的，不是"连"出来的</span>
+<span class="hljs-comment">// 私钥 → ECDSA 公钥 → keccak256 → 取后 20 字节 = 地址，离线即可完成</span>
+<span class="hljs-comment">// ============================================================</span>
+
+<span class="hljs-comment">// ── 五、裸 fetch：只借 ethers Wallet 的本地密码学能力，链交互全走自己的网络请求 ──</span>
+<span class="hljs-keyword">import</span> { Wallet } <span class="hljs-keyword">from</span> <span class="hljs-string">'ethers'</span>;
+<span class="hljs-keyword">const</span> wallet = <span class="hljs-keyword">new</span> <span class="hljs-function">Wallet</span>(privateKey);
+<span class="hljs-keyword">const</span> me = wallet.<span class="hljs-property">address</span>;      <span class="hljs-comment">// 派生地址，至此"连接"完成</span>
+<span class="hljs-comment">// 签名也用它：wallet.signTransaction(...) → 自己 fetch 广播（见第五节）</span>
+
+<span class="hljs-comment">// ── 六、ethers：私钥 + provider，签名广播一体 ──</span>
+<span class="hljs-comment">// provider 来源 1：JsonRpcProvider —— 自己指定 RPC 端点（本地方式用它，</span>
+<span class="hljs-comment">//   内部 = 第五节手写的 eth() 网络请求封装，负责查询和广播）</span>
+<span class="hljs-keyword">const</span> provider = <span class="hljs-keyword">new</span> ethers.<span class="hljs-function">JsonRpcProvider</span>(<span class="hljs-string">'https://ethereum-rpc.publicnode.com'</span>);
+<span class="hljs-comment">// provider 来源 2：BrowserProvider —— 连第三方钱包时才用（包住 window.ethereum，见下一张卡片）</span>
+<span class="hljs-comment">// const provider = new ethers.BrowserProvider(window.ethereum);</span>
+<span class="hljs-comment">// Wallet 的第二个参数可省略：不传就只有本地签名能力，广播要自己发请求（= 第五节）</span>
+<span class="hljs-keyword">const</span> wallet6 = <span class="hljs-keyword">new</span> ethers.<span class="hljs-function">Wallet</span>(privateKey, provider);
+<span class="hljs-comment">// 与第五节的唯一区别：广播也交给 wallet6.sendTransaction()，不用自己 fetch</span>
+
+<span class="hljs-comment">// ── 七、viem：私钥 → 账户对象，显式拆分查询/签名 ──</span>
+<span class="hljs-keyword">import</span> { privateKeyToAccount } <span class="hljs-keyword">from</span> <span class="hljs-string">'viem/accounts'</span>;
+<span class="hljs-keyword">const</span> account = <span class="hljs-function">privateKeyToAccount</span>(privateKey); <span class="hljs-comment">// 派生地址 + 本地签名器</span>
+<span class="hljs-keyword">const</span> walletClient = <span class="hljs-function">createWalletClient</span>({
+  <span class="hljs-property">account</span>,                        <span class="hljs-comment">// ← 本地账户，这是"本地方式"的标志</span>
+  <span class="hljs-property">chain</span>: mainnet,
+  <span class="hljs-property">transport</span>: <span class="hljs-function">http</span>(RPC_URL)
+});
+<span class="hljs-comment">// 也能单独用账户：account.address 拿地址、account.signMessage 签消息</span>
+
+<span class="hljs-comment">// ⚠️ 三种写法本质完全相同：私钥在自己手里 → 签名本地完成 → 广播只是一个 HTTP 请求。</span>
+<span class="hljs-comment">// 钱包 App（私钥存 Keychain/Keystore 的场景）走这条路，用户无感知、无弹窗。</span>
+</code></pre>
+            </div>
+
+            <div class="method-card" id="connect-external">
+                <div class="method-header">
+                    <span class="method-name">第三方钱包连接（EIP-1193 注入钱包）</span>
+                    <span class="method-no-auth">DApp 前端场景</span>
+                </div>
+<pre><code><span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 第三方钱包：MetaMask 等浏览器插件往页面注入 window.ethereum（EIP-1193）</span>
+<span class="hljs-comment">// 连接 = 请求账户授权；之后签名也在钱包里完成，DApp 拿不到私钥</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// 前提：检测 window.ethereum 是否存在，不存在则引导用户安装钱包</span>
+<span class="hljs-keyword">if</span> (!window.ethereum) {
+  <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-function">Error</span>(<span class="hljs-string">'未检测到钱包插件，请先安装 MetaMask'</span>);
+}
+
+<span class="hljs-comment">// ── 六、ethers：BrowserProvider 包住注入对象 ──</span>
+<span class="hljs-keyword">const</span> provider = <span class="hljs-keyword">new</span> ethers.<span class="hljs-function">BrowserProvider</span>(window.ethereum);
+<span class="hljs-keyword">const</span> accounts = <span class="hljs-keyword">await</span> provider.<span class="hljs-method">send</span>(<span class="hljs-string">'eth_requestAccounts'</span>, []); <span class="hljs-comment">// ← 弹授权框</span>
+<span class="hljs-keyword">const</span> signer = <span class="hljs-keyword">await</span> provider.<span class="hljs-method">getSigner</span>();  <span class="hljs-comment">// 拿到"签名者"（钱包里的账户）</span>
+<span class="hljs-comment">// 之后发交易：signer.sendTransaction({...})，签名弹窗由钱包弹出</span>
+
+<span class="hljs-comment">// ── 七、viem：custom transport 包住注入对象 ──</span>
+<span class="hljs-keyword">const</span> walletClient = <span class="hljs-function">createWalletClient</span>({
+  <span class="hljs-property">chain</span>: mainnet,
+  <span class="hljs-property">transport</span>: <span class="hljs-function">custom</span>(window.ethereum)  <span class="hljs-comment">// ← 与本地方式的区别就在这一行：</span>
+});                                     <span class="hljs-comment">//    http(RPC_URL) → 自己管私钥签名</span>
+                                        <span class="hljs-comment">//    custom(注入对象) → 钱包签名</span>
+<span class="hljs-keyword">const</span> addresses = <span class="hljs-keyword">await</span> walletClient.<span class="hljs-method">requestAddresses</span>(); <span class="hljs-comment">// ← 弹授权框（= eth_requestAccounts）</span>
+<span class="hljs-comment">// 之后发交易：walletClient.sendTransaction({...})，内部转为钱包的 eth_sendTransaction</span>
+
+<span class="hljs-comment">// ── 五、裸 fetch：做不到 ──</span>
+<span class="hljs-comment">// 广播前需要"已签名的交易"（eth_sendRawTransaction），而签名需要私钥。</span>
+<span class="hljs-comment">// 第三方钱包不交私钥，只提供"帮我签这笔交易"的请求通道（eth_sendTransaction）——</span>
+<span class="hljs-comment">// 这正是 dapp-wallet-methods 文档里 DApp 侧方法集的来源。裸 fetch 没有 EIP-1193 通道，</span>
+<span class="hljs-comment">// 所以它只能配合本地私钥（第五节的方式）。</span>
+</code></pre>
+                <div class="note">
+                    <strong>💡 两条请求通道路径对比：</strong>本地方式：<code>你的代码签名 → eth_sendRawTransaction 广播</code>；第三方方式：<code>你的代码发 eth_sendTransaction → 钱包弹窗确认 → 钱包签名 → 钱包（或你拿回签名后）广播</code>。用户的钱包在第二种方式里既是签名器也是授权关口——这就是 DApp 每笔交易都要用户点确认的原因。
+                </div>
+            </div>
+
+            <div class="method-card" id="connect-wagmi">
+                <div class="method-header">
+                    <span class="method-name">wagmi 连接器（多钱包统一接入）</span>
+                    <span class="method-no-auth">只支持第三方钱包</span>
+                </div>
+<pre><code><span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// wagmi：用"连接器"抽象统一接入各种第三方钱包，App 全程不碰私钥</span>
+<span class="hljs-comment">// ============================================================</span>
+<span class="hljs-comment">// main.tsx：配置一次，全 App 共享。三种常见连接器：</span>
+<span class="hljs-comment">//   injected()        浏览器插件钱包（MetaMask 等，即 window.ethereum）</span>
+<span class="hljs-comment">//   walletConnect()   扫码连接手机钱包（通过中继服务器转发签名请求）</span>
+<span class="hljs-comment">//   coinbaseWallet()  Coinbase 钱包</span>
+<span class="hljs-keyword">import</span> { createConfig, http } <span class="hljs-keyword">from</span> <span class="hljs-string">'wagmi'</span>;
+<span class="hljs-keyword">import</span> { mainnet } <span class="hljs-keyword">from</span> <span class="hljs-string">'wagmi/chains'</span>;
+<span class="hljs-keyword">import</span> { injected, walletConnect, coinbaseWallet } <span class="hljs-keyword">from</span> <span class="hljs-string">'wagmi/connectors'</span>;
+
+<span class="hljs-keyword">const</span> config = <span class="hljs-function">createConfig</span>({
+  <span class="hljs-property">chains</span>: [mainnet],
+  <span class="hljs-property">connectors</span>: [
+    <span class="hljs-function">injected</span>(),                          <span class="hljs-comment">// 插件钱包：装在浏览器里的钱包扩展（MetaMask、Rabby、OKX Wallet 等），</span>
+                                        <span class="hljs-comment">//   安装后往页面注入 window.ethereum（EIP-1193）</span>
+    <span class="hljs-function">walletConnect</span>({ <span class="hljs-property">projectId</span>: <span class="hljs-string">'...'</span> }), <span class="hljs-comment">// 扫码连手机钱包，需在 WalletConnect 云端注册</span>
+    <span class="hljs-function">coinbaseWallet</span>()
+  ],
+  <span class="hljs-property">transports</span>: { [mainnet.id]: <span class="hljs-function">http</span>(RPC_URL) } <span class="hljs-comment">// 查询走的 RPC（与第八节相同）</span>
+});
+<span class="hljs-comment">// injected() 最终走的就是上一张卡片 custom(window.ethereum) 那条 EIP-1193 通道——</span>
+<span class="hljs-comment">// wagmi 只是把「检测插件是否安装、多插件抢 window.ethereum 的兼容处理、</span>
+<span class="hljs-comment">// 连接状态管理」这些脏活封装掉了。所以 injected() 不需要 projectId：</span>
+<span class="hljs-comment">// 它不经过任何第三方服务器，纯粹是本机通信；walletConnect() 必须注册 projectId，</span>
+<span class="hljs-comment">// 因为签名请求要经中继服务器转发到用户手机。</span>
+
+<span class="hljs-comment">// ── 组件里：连接 + 展示账户 + 断开 ──</span>
+<span class="hljs-keyword">import</span> { useConnect, useAccount, useDisconnect } <span class="hljs-keyword">from</span> <span class="hljs-string">'wagmi'</span>;
+
+<span class="hljs-keyword">function</span> <span class="hljs-function"><span class="hljs-title">ConnectButton</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> { connect, connectors, isPending } = <span class="hljs-function">useConnect</span>();
+  <span class="hljs-keyword">const</span> { <span class="hljs-property">address</span>, isConnected, chainId } = <span class="hljs-function">useAccount</span>();
+  <span class="hljs-keyword">const</span> { disconnect } = <span class="hljs-function">useDisconnect</span>();
+
+  <span class="hljs-comment">// 未连接：列出所有连接器让用户选（实际项目配钱包选择弹窗）</span>
+  <span class="hljs-keyword">if</span> (!isConnected) {
+    <span class="hljs-keyword">return</span> connectors.<span class="hljs-method">map</span>(c =&gt;
+      &lt;<span class="hljs-variable">button</span> <span class="hljs-variable">key</span>={c.uid} <span class="hljs-variable">onClick</span>={() =&gt; <span class="hljs-method">connect</span>({ connector: c })}&gt;
+        用 {c.name} 连接
+      &lt;/<span class="hljs-variable">button</span>&gt;
+    );
+  }
+
+  <span class="hljs-comment">// 已连接：展示账户。address 来自钱包授权，不是本地派生（对比本地方式）</span>
+  <span class="hljs-keyword">return</span> (
+    &lt;<span class="hljs-variable">div</span>&gt;
+      &lt;<span class="hljs-variable">p</span>&gt;已连接: {address}（链 ID: {chainId}）&lt;/<span class="hljs-variable">p</span>&gt;
+      &lt;<span class="hljs-variable">button</span> <span class="hljs-variable">onClick</span>={() =&gt; <span class="hljs-method">disconnect</span>()}&gt;断开&lt;/<span class="hljs-variable">button</span>&gt;
+    &lt;/<span class="hljs-variable">div</span>&gt;
+  );
+}
+
+<span class="hljs-comment">// 连接之后，第八节的全部 Hook（useBalance / useSendTransaction / useWriteContract ...）</span>
+<span class="hljs-comment">// 自动使用这个已连接账户：签名由所选连接器对应的钱包完成，弹窗交给钱包。</span>
+</code></pre>
+                <div class="note">
+                    <strong>💡 WalletConnect 也是"第三方"：</strong>它不注入 <code>window.ethereum</code>，而是把签名请求经中继服务器转发到<strong>用户手机上的钱包 App</strong>（扫码授权）。对 ethers/viem 有独立集成包；wagmi 里就是上面配置中的 <code>walletConnect({ projectId })</code>。裸 fetch 方式同样用不了它——无论插件还是中继，第三方连接的本质都是<strong>借别人的私钥签名</strong>，没有签名通道就无从谈起。
+                </div>
+            </div>
+
+            <div class="footer">
+                以太坊网络请求参数参考手册 - 完整示例可直接复制使用
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function setActive(clicked) {
+            // 移除所有active
+            document.querySelectorAll('.sidebar a').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            // 添加active到点击的
+            clicked.classList.add('active');
+        }
+
+        // 滚动时自动高亮当前章节
+        window.addEventListener('scroll', function() {
+            var headings = document.querySelectorAll('h2, h3');
+            var currentId = '';
+            headings.forEach(function(heading) {
+                var rect = heading.getBoundingClientRect();
+                if (rect.top <= 100) {
+                    currentId = heading.id;
+                }
+            });
+            if (currentId) {
+                document.querySelectorAll('.sidebar a').forEach(function(el) {
+                    el.classList.remove('active');
+                    if (el.getAttribute('href') === '#' + currentId) {
+                        el.classList.add('active');
+                    }
+                });
+            }
+        });
+
+        // 默认选中第一个
+        document.querySelector('.sidebar ul li a').classList.add('active');
+    </script>
+</body>
+</html>
