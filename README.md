@@ -90,7 +90,7 @@ flowchart TB
     subgraph VM["🧠 ViewModel / Service 层"]
         HVM[HomeViewModel / DetailViewModel]
         BVM[BrowserViewModel]
-        PVM[ProfileViewModel<br/>账号 CRUD + requestPrivateKey]
+        PVM["ProfileViewModel<br/>账号 CRUD + requestPrivateKey"]
         TLVM[TransactionListViewModel<br/>本地交易记录 CoreData]
         WCS[WalletConnectService<br/>钱包端 会话/请求/响应]
         EWS[ExternalWalletService<br/>dApp 端 连外部钱包]
@@ -98,7 +98,7 @@ flowchart TB
 
     %% ============ 浏览器引擎 ============
     subgraph BRIDGE["🌐 DApp 浏览器引擎"]
-        WVC[WebViewCoordinator<br/>WKNavigationDelegate +<br/>WKScriptMessageHandler "ethereum"]
+        WVC["WebViewCoordinator<br/>WKNavigationDelegate +<br/>WKScriptMessageHandler(ethereum)"]
         W3S[Web3RPCService<br/>RPC 方法分发 / 审批判断]
         TSI[TrustScriptInjection<br/>trust-min.js 注入 documentStart]
     end
