@@ -15,11 +15,13 @@ final class EthRPCClient {
     static let shared = EthRPCClient()
 
     // MARK: - Public RPC endpoints（单一来源，从 Web3RPCService 迁出）
+    // 端点选型经过国内网络实测（2026-10）：Infura / bsc-dataseed 不可达，
+    // publicnode.com 的 ETH/BSC/Polygon 与 api.avax.network 全部可用
     let endpoints: [Int: String] = [
-        1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161", // Ethereum
-        56: "https://bsc-dataseed.binance.org/", // BSC
+        1: "https://ethereum-rpc.publicnode.com", // Ethereum
+        56: "https://bsc-rpc.publicnode.com", // BSC
         43114: "https://api.avax.network/ext/bc/C/rpc", // Avalanche
-        137: "https://polygon-rpc.com/", // Polygon
+        137: "https://polygon-bor-rpc.publicnode.com", // Polygon
     ]
 
     private let session: URLSession
