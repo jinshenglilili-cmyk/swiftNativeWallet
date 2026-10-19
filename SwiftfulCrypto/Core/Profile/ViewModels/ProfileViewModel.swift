@@ -45,6 +45,14 @@ class ProfileViewModel: ObservableObject {
         }
 
         saveAccounts()
+
+        // 通知 WalletConnectService：该地址关联的会话不应保留权限，需主动断开
+        // （AccountModel 非 Equatable，且 WCService 不持有 accounts 列表，故走通知）
+        NotificationCenter.default.post(
+            name: .wcAccountDeleted,
+            object: nil,
+            userInfo: ["address": account.address]
+        )
     }
 
     func selectAccount(account: AccountModel) {
@@ -124,10 +132,20 @@ class ProfileViewModel: ObservableObject {
     }
 
     // 敏感操作（DApp 签名、导出）读取私钥的唯一入口：
-    // 必须先通过生物识别，验证通过才返回私钥；取消/失败返回 nil
-    func requestPrivateKey(account: AccountModel, reason: String, completion: @escaping (String?) -> Void) {
-        BiometricAuthService.authenticate(reason: reason) { success, _ in
-            completion(success ? ProfileViewModel.exportPrivateKey(for: account) : nil)
+    // 必须先通过生物识别，验证通过才返回私钥。
+    // keyHex 为 nil 时 failure 给出具体原因（取消 / 未录入生物识别 / 账号无密钥存储）
+    func requestPrivateKey(account: AccountModel, reason: String, completion: @escaping (_ keyHex: String?, _ failure: String?) -> Void) {
+        BiometricAuthService.authenticate(reason: reason) { success, errorMessage in
+            if success {
+                if let key = ProfileViewModel.exportPrivateKey(for: account) {
+                    completion(key, nil)
+                } else {
+                    completion(nil, "当前账号只保存了地址（观察账号），没有私钥/助记词，无法签名。请用「助记词创建」或「导入私钥」的账号操作")
+                }
+            } else {
+                // 用户主动取消时 errorMessage 为 nil，单独标出以便与真实故障区分
+                completion(nil, errorMessage ?? "用户取消验证")
+            }
         }
     }
 

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- WalletConnect(reown-swift) 把 Networking.configure 的 groupIdentifier
+	     直接用作 Keychain kSecAttrAccessGroup（KeychainStorage.swift），
+	     此处必须包含同一个 "group.*" 标识，否则 OSStatus -34018 崩溃 -->
+	<key>keychain-access-groups</key>
+	<array>
+		<string>group.com.yournamehere.SwiftfulCrypto</string>
+		<string>$(AppIdentifierPrefix)com.yournamehere.SwiftfulCrypto</string>
+	</array>
+	<!-- UserDefaults(suiteName:) 同样使用该 App Group（真机需要；模拟器可省） -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.yournamehere.SwiftfulCrypto</string>
+	</array>
+</dict>
+</plist>

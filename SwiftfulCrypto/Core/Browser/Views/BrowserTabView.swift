@@ -9,6 +9,7 @@ import SwiftUI
 
 struct BrowserTabView: View {
     @EnvironmentObject private var profileVM: ProfileViewModel
+    @EnvironmentObject private var externalWalletService: ExternalWalletService
     @StateObject private var viewModel: BrowserViewModel
     @State private var urlText: String = ""
 
@@ -33,6 +34,9 @@ struct BrowserTabView: View {
                     onStopLoading: { viewModel.stopLoading() },
                     onSubmitUrl: { viewModel.loadURLFromText() }
                 )
+
+                // dApp 端：连接外部钱包（MetaMask / Trust 等）入口
+                externalWalletBar
 
                 // Web view
                 DAppBrowserView(
@@ -77,6 +81,57 @@ struct BrowserTabView: View {
         .onChange(of: profileVM.selectedAccount) { newValue in
             viewModel.rpcService.selectedAccount = newValue
         }
+    }
+
+    /// 外部钱包状态条：未连接 → 「连接外部钱包」；已连接 → 钱包名 + 简要地址 + 断开
+    @ViewBuilder private var externalWalletBar: some View {
+        HStack(spacing: 10) {
+            Circle()
+                .fill(externalWalletService.isConnected ? Color.green : Color.gray.opacity(0.5))
+                .frame(width: 8, height: 8)
+
+            if externalWalletService.isConnected {
+                Text(externalWalletService.walletName ?? "外部钱包")
+                    .font(.caption)
+                    .foregroundColor(Color.theme.accent)
+                if let address = externalWalletService.address {
+                    Text("\(address.prefix(6))...\(address.suffix(4))")
+                        .font(.caption2)
+                        .foregroundColor(Color.theme.secondaryText)
+                }
+                Spacer()
+                Button("断开") {
+                    externalWalletService.disconnect()
+                }
+                .font(.caption)
+                .foregroundColor(.red)
+            } else {
+                Text("未连接外部钱包")
+                    .font(.caption)
+                    .foregroundColor(Color.theme.secondaryText)
+                Spacer()
+                Button {
+                    externalWalletService.presentWalletModal()
+                } label: {
+                    Label("连接外部钱包", systemImage: "link")
+                        .font(.caption.weight(.semibold))
+                }
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 6)
+        .background(Color.theme.secondaryText.opacity(0.06))
+        .overlay(
+            // 请求出错/签名结果提示（轻量，3 秒后自动消失由下次操作覆盖）
+            Group {
+                if let error = externalWalletService.errorMessage {
+                    Text(error)
+                        .font(.caption2)
+                        .foregroundColor(.red)
+                        .lineLimit(1)
+                }
+            }
+        )
     }
 }
 

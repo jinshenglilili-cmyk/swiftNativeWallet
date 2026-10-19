@@ -11,29 +11,25 @@ import WalletCore
 
 typealias RPCId = Int
 
-/// JSON-RPC service handling requests from DApp
+/// JSON-RPC service handling requests from DApp.
+/// 薄壳：消息签名与交易构造转发给共享的 EthereumSigningService，
+/// 只读请求转发给 EthRPCClient（真 POST）。
 class Web3RPCService: ObservableObject {
     // MARK: - Published
     @Published var responseToSend: String?
 
     // MARK: - Dependencies
     weak var profileViewModel: ProfileViewModel?
+    /// 兼容保留：优先取 profileViewModel.selectedAccount
     var selectedAccount: AccountModel?
+    private let signing: EthereumSigningService
 
     // MARK: - Pending requests waiting for approval
     private var pendingRequests: [Int: (PendingRequest, (Bool) -> Void)] = [:]
-    private var requestCounter = 0
-
-    // MARK: - Public RPC endpoints
-    private let defaultRPCEndpoints: [Int: String] = [
-        1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161", // Ethereum
-        56: "https://bsc-dataseed.binance.org/", // BSC
-        43114: "https://api.avax.network/ext/bc/C/rpc", // Avalanche
-        137: "https://polygon-rpc.com/", // Polygon
-    ]
 
     init(profileViewModel: ProfileViewModel?) {
         self.profileViewModel = profileViewModel
+        self.signing = EthereumSigningService(profileViewModel: profileViewModel)
     }
 
     // MARK: - Public: Handle incoming RPC
@@ -42,6 +38,9 @@ class Web3RPCService: ObservableObject {
         jsonString: String,
         onNeedsApproval: @escaping (Bool, PendingRequest?) -> Void
     ) throws {
+        // 每次请求时同步最新选中账号
+        selectedAccount = profileViewModel?.selectedAccount
+
         // Parse JSON-RPC
         guard let data = jsonString.data(using: .utf8) else {
             print("🌐 [Web3RPC] Invalid JSON encoding")
@@ -66,7 +65,7 @@ class Web3RPCService: ObservableObject {
                 id: UUID().uuidString,
                 method: method,
                 parameters: params,
-                chainId: getCurrentChainId(),
+                chainId: String(getCurrentChainId()),
                 requestId: id
             )
             pendingRequests[id] = (pending, { [weak self] approved in
@@ -120,8 +119,10 @@ class Web3RPCService: ObservableObject {
         switch method {
         case "eth_accounts":
             handleEthAccounts(params: params, id: id)
-        case "eth_chainId", "net_version":
-            handleChainId(params: params, id: id)
+        case "eth_chainId":
+            sendSuccessResponse(result: "0x\(String(getCurrentChainId(), radix: 16))", id: id)
+        case "net_version":
+            sendSuccessResponse(result: getCurrentChainId(), id: id)
         case "eth_coinbase":
             handleCoinbase(params: params, id: id)
         case "eth_blockNumber",
@@ -147,19 +148,23 @@ class Web3RPCService: ObservableObject {
             return
         }
 
+        guard let account = selectedAccount else {
+            sendErrorResponse(id: id, message: "No account selected. Please create or import an account first.")
+            return
+        }
+
         switch method {
         case "eth_requestAccounts":
             handleEthRequestAccounts(params: params, id: id)
-        case "personal_sign":
-            handlePersonalSign(params: params, id: id)
-        case "eth_sendTransaction":
-            handleSendTransaction(params: params, id: id)
-        case "eth_signTransaction":
-            handleSignTransaction(params: params, id: id)
+        case "personal_sign", "eth_sign":
+            handlePersonalSign(params: params, account: account, id: id)
         case "eth_signTypedData", "eth_signTypedData_v4":
-            handleSignTypedData(params: params, id: id)
-        case "eth_sign":
-            handleEthSign(params: params, id: id)
+            handleSignTypedData(params: params, account: account, id: id)
+        case "eth_sendTransaction":
+            handleSendTransaction(params: params, account: account, id: id)
+        case "eth_signTransaction":
+            // 只签名不广播存在钓鱼风险（可被任意 dApp 重放），主流钱包同样拒绝
+            sendErrorResponse(id: id, message: "eth_signTransaction is not supported. Please use eth_sendTransaction.")
         default:
             sendErrorResponse(id: id, message: "Unsupported method after approval: \(method)")
         }
@@ -193,160 +198,71 @@ class Web3RPCService: ObservableObject {
         }
     }
 
-    private func handleChainId(params: Any?, id: Int) {
-        let chainId = getCurrentChainId()
-        // Return as hex string for eth_chainId, decimal for net_version
-        if let method = getCallingMethodForId(id), method == "eth_chainId" {
-            sendSuccessResponse(result: "0x\(String(chainId, radix: 16))", id: id)
-        } else {
-            sendSuccessResponse(result: chainId, id: id)
-        }
-    }
+    // MARK: - Signing methods（转发共享签名层）
 
-    // MARK: - Signing methods
-
-    private func handlePersonalSign(params: Any?, id: Int) {
+    private func handlePersonalSign(params: Any?, account: AccountModel, id: Int) {
         // personal_sign expects: [message, address]
         guard let paramsArray = params as? [Any],
               paramsArray.count >= 2,
-              let messageHex = paramsArray[0] as? String,
-              let _ = paramsArray[1] as? String,
-              let account = selectedAccount else {
+              let messageHex = paramsArray[0] as? String else {
             sendErrorResponse(id: id, message: "Invalid parameters or no selected account")
             return
         }
 
-        // dApp 传来的是 hex 编码的消息，先解码为明文（EIP-191 前缀由 signer 内部添加）
-        guard let messageData = Data(hexString: messageHex.stripHexPrefix()),
-              let message = String(data: messageData, encoding: .utf8) else {
-            sendErrorResponse(id: id, message: "Invalid message hex")
-            return
-        }
-
-        signWithBiometric(account: account, id: id) { privateKey in
-            let signature = EthereumMessageSigner.signMessage(privateKey: privateKey, message: message)
-            self.sendSuccessResponse(result: signature, id: id)
+        signing.personalSign(messageHex: messageHex, account: account) { [weak self] result in
+            self?.sendResponse(result: result, id: id)
         }
     }
 
-    // 读取 Keychain 中的私钥进行签名前，必须通过生物识别验证；
-    // 验证取消/失败时向 dApp 返回错误响应（而不是挂起）
-    private func signWithBiometric(account: AccountModel, id: Int, sign: @escaping (PrivateKey) -> Void) {
-        guard let profileViewModel = profileViewModel else {
-            sendErrorResponse(id: id, message: "Account storage unavailable")
-            return
-        }
-
-        profileViewModel.requestPrivateKey(account: account, reason: "验证身份后对 DApp 请求进行签名") { keyHex in
-            guard let keyHex = keyHex,
-                  let keyData = Data(hexString: keyHex.stripHexPrefix()),
-                  let privateKey = PrivateKey(data: keyData) else {
-                self.sendErrorResponse(id: id, message: "User canceled authentication or private key unavailable")
-                return
-            }
-            sign(privateKey)
-        }
-    }
-
-    private func handleEthSign(params: Any?, id: Int) {
-        // Similar to personal_sign
-        handlePersonalSign(params: params, id: id)
-    }
-
-    private func handleSignTypedData(params: Any?, id: Int) {
+    private func handleSignTypedData(params: Any?, account: AccountModel, id: Int) {
         // eth_signTypedData(_v4) expects: [address, typedDataJSON]
         guard let paramsArray = params as? [Any],
               paramsArray.count >= 2,
-              let typedDataJSON = paramsArray[1] as? String,
-              let account = selectedAccount else {
+              let typedDataJSON = paramsArray[1] as? String else {
             sendErrorResponse(id: id, message: "Invalid parameters or no selected account")
             return
         }
 
-        signWithBiometric(account: account, id: id) { privateKey in
-            let signature = EthereumMessageSigner.signTypedMessage(privateKey: privateKey, messageJson: typedDataJSON)
-            self.sendSuccessResponse(result: signature, id: id)
+        signing.signTypedData(typedDataJSON: typedDataJSON, account: account) { [weak self] result in
+            self?.sendResponse(result: result, id: id)
         }
     }
 
-    private func handleSendTransaction(params: Any?, id: Int) {
-        // TODO: 交易签名需要在读取私钥前同样接入 BiometricAuthService（复用 signWithBiometric），
-        // 并构造 EthereumSigningInput 广播；当前仍是占位实现，未读取私钥
-        let txHash = "0x\(String(repeating: "a", count: 64))"
-        sendSuccessResponse(result: txHash, id: id)
-    }
+    private func handleSendTransaction(params: Any?, account: AccountModel, id: Int) {
+        guard let paramsArray = params as? [Any],
+              let txJSON = paramsArray.first,
+              let tx = WCTransaction(json: txJSON) else {
+            sendErrorResponse(id: id, message: "Invalid transaction parameters")
+            return
+        }
 
-    private func handleSignTransaction(params: Any?, id: Int) {
-        // Similar to sendTransaction but returns the signed payload
-        let signedTx = "0x\(String(repeating: "b", count: 128))"
-        sendSuccessResponse(result: signedTx, id: id)
+        guard let chainId = account.chain.eip155ChainId else {
+            sendErrorResponse(id: id, message: "Current chain does not support Ethereum transactions")
+            return
+        }
+
+        signing.sendTransaction(tx, account: account, chainId: chainId) { [weak self] result in
+            self?.sendResponse(result: result, id: id)
+        }
     }
 
     // MARK: - Forwarding read-only requests to RPC endpoint
 
     private func forwardToRPC(method: String, params: Any?, id: Int) {
-        guard let rpcURL = getRPCEndpoint() else {
-            sendErrorResponse(id: id, message: "No RPC endpoint configured for current chain")
-            return
-        }
+        let chainId = getCurrentChainId()
+        let paramsArray = (params as? [Any]) ?? []
 
-        // Create JSON-RPC request to forward
-        let request: [String: Any] = [
-            "jsonrpc": "2.0",
-            "id": id,
-            "method": method,
-            "params": params ?? []
-        ]
-
-        do {
-            let data = try JSONSerialization.data(withJSONObject: request)
-            var urlRequest = URLRequest(url: rpcURL)
-            urlRequest.httpMethod = "POST"
-            urlRequest.httpBody = data
-            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-            // Use existing NetworkingManager
-            NetworkingManager.download(url: rpcURL)
-                .sink(
-                    receiveCompletion: { completion in
-                        NetworkingManager.handleCompletion(completion: completion)
-                        if case .failure(let error) = completion {
-                            print("RPC forward error: \(error)")
-                            self.sendErrorResponse(id: id, message: error.localizedDescription)
-                        }
-                    },
-                    receiveValue: { data in
-                        // Just forward the response back to JS
-                        if let jsonString = String(data: data, encoding: .utf8) {
-                            // Parse to get the result/error and resend
-                            self.forwardRPCResponse(data: data, originalId: id)
-                        } else {
-                            self.sendErrorResponse(id: id, message: "Invalid response from RPC")
-                        }
-                    }
-                )
-                .store(in: &cancellables)
-        } catch {
-            sendErrorResponse(id: id, message: "Failed to serialize request: \(error.localizedDescription)")
-        }
-    }
-
-    private func forwardRPCResponse(data: Data, originalId: Int) {
-        do {
-            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                sendErrorResponse(id: originalId, message: "Invalid JSON response from RPC")
-                return
+        Task {
+            do {
+                let result = try await EthRPCClient.shared.call(chainId: chainId, method: method, params: paramsArray)
+                await MainActor.run {
+                    self.sendSuccessResponse(result: result, id: id)
+                }
+            } catch {
+                await MainActor.run {
+                    self.sendErrorResponse(id: id, message: error.localizedDescription)
+                }
             }
-
-            if let error = json["error"] {
-                sendErrorResponse(id: originalId, message: "\(error)")
-                return
-            }
-
-            let result = json["result"]
-            sendSuccessResponse(result: result as Any, id: originalId)
-        } catch {
-            sendErrorResponse(id: originalId, message: "Failed to parse RPC response: \(error.localizedDescription)")
         }
     }
 
@@ -357,25 +273,7 @@ class Web3RPCService: ObservableObject {
         guard let chain = selectedAccount?.chain else {
             return 1 // Default to Ethereum mainnet
         }
-
-        switch chain {
-        case .ethereum: return 1
-        case .bsc: return 56
-        case .avalanche: return 43114
-        case .polygon: return 137
-        case .bitcoin: return 0
-        case .solana: return 101 // Solana mainnet
-        case .tron: return 195
-        }
-    }
-
-    private func getRPCEndpoint() -> URL? {
-        let chainId = getCurrentChainId()
-        if let endpointString = defaultRPCEndpoints[chainId] {
-            return URL(string: endpointString)
-        }
-        // Fallback to Ethereum
-        return URL(string: defaultRPCEndpoints[1]!)
+        return chain.eip155ChainId ?? 1
     }
 
     private func formatAddressHex(_ address: String) -> String {
@@ -386,12 +284,17 @@ class Web3RPCService: ObservableObject {
         return "0x\(address)"
     }
 
-    private func getCallingMethodForId(_ id: Int) -> String? {
-        // This is simplified - in a full implementation you'd track method by id
-        return nil
-    }
-
     // MARK: - Response sending
+
+    /// 共享签名层 Result → JSON-RPC 响应
+    private func sendResponse(result: Result<String, Error>, id: Int) {
+        switch result {
+        case .success(let value):
+            sendSuccessResponse(result: value, id: id)
+        case .failure(let error):
+            sendErrorResponse(id: id, message: error.localizedDescription)
+        }
+    }
 
     private func sendSuccessResponse(result: Any?, id: Int) {
         let response: [String: Any] = [
@@ -425,10 +328,6 @@ class Web3RPCService: ObservableObject {
             print("Failed to serialize JSON-RPC response: \(error)")
         }
     }
-
-    // MARK: - Cancellables
-
-    private var cancellables = Set<AnyCancellable>()
 }
 
 extension String {

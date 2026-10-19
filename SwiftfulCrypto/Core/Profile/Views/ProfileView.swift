@@ -10,8 +10,12 @@ import SwiftUI
 struct ProfileView: View {
 
     @EnvironmentObject private var vm: ProfileViewModel
+    @EnvironmentObject private var wcService: WalletConnectService
+    @EnvironmentObject private var externalWalletService: ExternalWalletService
     @State private var showSettings: Bool = false
     @State private var showAccountSelector: Bool = false
+    @State private var showWCPair: Bool = false
+    @State private var showWCConnections: Bool = false
 
     var body: some View {
         ZStack {
@@ -27,10 +31,8 @@ struct ProfileView: View {
                 // 始终保留空间，只做显示/隐藏，避免布局跳动
                 if let selectedAccount = vm.selectedAccount {
                     accountInfoSection(selectedAccount: selectedAccount)
-                        .opacity(1)
                 } else {
                     accountInfoSectionPlaceholder
-                        .opacity(0)
                 }
 
                 commonFunctionsSection
@@ -48,6 +50,15 @@ struct ProfileView: View {
             AccountSelectorView(vm: vm) { account in
                 vm.selectAccount(account: account)
             }
+        }
+        .sheet(isPresented: $showWCPair) {
+            WCPairView(service: wcService)
+        }
+        .sheet(isPresented: $showWCConnections) {
+            NavigationView {
+                WCConnectionsView(service: wcService)
+            }
+            .navigationViewStyle(StackNavigationViewStyle())
         }
         // 不需要动画，因为布局不变，根本不会跳动
     }
@@ -119,11 +130,17 @@ extension ProfileView {
         .padding(.horizontal)
     }
 
-    // 占位符始终占据相同空间，避免布局跳动
+    // 无账号时的占位：高度与账号卡片一致，避免布局跳动，同时给出引导文案
     private var accountInfoSectionPlaceholder: some View {
-        VStack(spacing: 15) {
-            EmptyView()
+        VStack(spacing: 8) {
+            Text("暂无账号")
+                .font(.headline)
+                .foregroundColor(Color.theme.secondaryText)
+            Text("用下方「助记词创建账号」或「私钥导入账号」添加")
+                .font(.caption)
+                .foregroundColor(Color.theme.secondaryText.opacity(0.7))
         }
+        .frame(maxWidth: .infinity)
         .padding(.horizontal)
         .frame(height: 110) // 和实际高度保持一致
     }
@@ -164,37 +181,116 @@ extension ProfileView {
                     }
                     .listRowBackground(Color.theme.background.opacity(0.5))
 
-                    // 始终占据空间，只改变透明度，避免布局跳动
+                    // 无账号时整行不渲染（opacity(0) 会留下空白行）
+                    if vm.selectedAccount != nil {
+                        NavigationLink {
+                            TransactionListView(selectedAccount: vm.selectedAccount)
+                        } label: {
+                            HStack {
+                                Image(systemName: "arrow.right.arrow.left.circle.fill")
+                                    .foregroundColor(.orange)
+                                    .frame(width: 25)
+                                Text("转账")
+                                    .foregroundColor(Color.theme.accent)
+                                Spacer()
+                            }
+                        }
+                        .listRowBackground(Color.theme.background.opacity(0.5))
+
+                        NavigationLink {
+                            ExportAccountView()
+                        } label: {
+                            HStack {
+                                Image(systemName: "key.fill")
+                                    .foregroundColor(.purple)
+                                    .frame(width: 25)
+                                Text("导出账号")
+                                    .foregroundColor(Color.theme.accent)
+                                Spacer()
+                            }
+                        }
+                        .listRowBackground(Color.theme.background.opacity(0.5))
+                    }
+
+                    // WalletConnect 区块
                     NavigationLink {
-                        TransactionListView(selectedAccount: vm.selectedAccount)
+                        WCConnectionsView(service: wcService)
                     } label: {
                         HStack {
-                            Image(systemName: "arrow.right.arrow.left.circle.fill")
-                                .foregroundColor(.orange)
+                            Image(systemName: "link.circle.fill")
+                                .foregroundColor(.teal)
                                 .frame(width: 25)
-                            Text("转账")
+                            Text("已连接的 dApp")
+                                .foregroundColor(Color.theme.accent)
+                            if !wcService.sessions.isEmpty {
+                                Text("\(wcService.sessions.count)")
+                                    .font(.caption2)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.teal)
+                                    .clipShape(Capsule())
+                            }
+                            Spacer()
+                        }
+                    }
+                    .listRowBackground(Color.theme.background.opacity(0.5))
+
+                    Button {
+                        showWCPair = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "qrcode.viewfinder")
+                                .foregroundColor(.teal)
+                                .frame(width: 25)
+                            Text("连接 dApp（扫码 / 粘贴）")
                                 .foregroundColor(Color.theme.accent)
                             Spacer()
                         }
                     }
                     .listRowBackground(Color.theme.background.opacity(0.5))
-                    .opacity(vm.selectedAccount != nil ? 1 : 0)
                     .disabled(vm.selectedAccount == nil)
 
-                    NavigationLink {
-                        ExportAccountView()
+                    // 外部钱包连接（dApp 端）：点击弹出 AppKit 钱包选择模态
+                    Button {
+                        externalWalletService.presentWalletModal()
                     } label: {
                         HStack {
-                            Image(systemName: "key.fill")
-                                .foregroundColor(.purple)
+                            Image(systemName: externalWalletService.isConnected ? "checkmark.seal.fill" : "wallet.pass.fill")
+                                .foregroundColor(externalWalletService.isConnected ? .green : .indigo)
                                 .frame(width: 25)
-                            Text("导出账号")
-                                .foregroundColor(Color.theme.accent)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(externalWalletService.isConnected
+                                     ? (externalWalletService.walletName ?? "外部钱包")
+                                     : "连接外部钱包")
+                                    .foregroundColor(Color.theme.accent)
+                                if externalWalletService.isConnected, let address = externalWalletService.address {
+                                    Text("[外部] \(formatAddress(address))")
+                                        .font(.caption2)
+                                        .foregroundColor(Color.theme.secondaryText)
+                                } else if let error = externalWalletService.errorMessage {
+                                    Text(error)
+                                        .font(.caption2)
+                                        .foregroundColor(Color.theme.red)
+                                        .lineLimit(1)
+                                }
+                            }
                             Spacer()
+                            if externalWalletService.isConnected {
+                                Button("断开") {
+                                    externalWalletService.disconnect()
+                                }
+                                .font(.subheadline)
+                                .foregroundColor(Color.theme.red)
+                                .buttonStyle(BorderlessButtonStyle())
+                            } else {
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(Color.theme.secondaryText)
+                            }
                         }
                     }
                     .listRowBackground(Color.theme.background.opacity(0.5))
-                    .opacity(vm.selectedAccount != nil ? 1 : 0)
                     .disabled(vm.selectedAccount == nil)
                 }
             }

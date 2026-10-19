@@ -6,6 +6,19 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>导出账号私钥前需要验证您的身份</string>
+	<key>NSCameraUsageDescription</key>
+	<string>扫描 WalletConnect 配对二维码需要访问相机</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.yournamehere.SwiftfulCrypto.walletconnect</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>swiftfulcrypto</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Crypto Tracker</string>
 	<key>CFBundleExecutable</key>

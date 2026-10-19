@@ -20,8 +20,6 @@
 		0274CD772647A848008099B6 /* Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0274CD762647A848008099B6 /* Double.swift */; };
 		0274CD7B2647B5A3008099B6 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0274CD7A2647B5A3008099B6 /* HomeViewModel.swift */; };
 		0274CD862647C333008099B6 /* CoinDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0274CD852647C333008099B6 /* CoinDataService.swift */; };
-		1A2B3C4D5E6F0002000000A2 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F0001000000A1 /* KeychainService.swift */; };
-		1A2B3C4D5E6F0004000000A4 /* ExportAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F0003000000A3 /* ExportAccountView.swift */; };
 		0274CD8A2647CEF2008099B6 /* NetworkingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0274CD892647CEF2008099B6 /* NetworkingManager.swift */; };
 		0274CD8F2647D85F008099B6 /* CoinImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0274CD8E2647D85F008099B6 /* CoinImageView.swift */; };
 		0274CD922647D9F1008099B6 /* CoinImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0274CD912647D9F1008099B6 /* CoinImageService.swift */; };
@@ -63,6 +61,8 @@
 		028E1C2F264F80140A4B420 /* SwiftfulCrypto/Core/Transfer/ViewModels/TransactionListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028E1C2E264F80140A4B420 /* SwiftfulCrypto/Core/Transfer/ViewModels/TransactionListViewModel.swift */; };
 		028E1C31264F80160A4B420 /* SwiftfulCrypto/Core/Transfer/Views/TransactionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028E1C30264F80160A4B420 /* SwiftfulCrypto/Core/Transfer/Views/TransactionListView.swift */; };
 		028E1C33264F80180A4B420 /* SwiftfulCrypto/Core/Transfer/Views/CreateTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028E1C32264F80180A4B420 /* SwiftfulCrypto/Core/Transfer/Views/CreateTransactionView.swift */; };
+		1A2B3C4D5E6F0002000000A2 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F0001000000A1 /* KeychainService.swift */; };
+		1A2B3C4D5E6F0004000000A4 /* ExportAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F0003000000A3 /* ExportAccountView.swift */; };
 		D024AC16302F09A6006759EB /* trust-min.js in Resources */ = {isa = PBXBuildFile; fileRef = D024AC15302F09A6006759EB /* trust-min.js */; };
 		D05E611A302EFE55003A5776 /* BrowserTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05E6114302EFE55003A5776 /* BrowserTabView.swift */; };
 		D05E611B302EFE55003A5776 /* Web3RPCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05E6110302EFE55003A5776 /* Web3RPCService.swift */; };
@@ -75,6 +75,22 @@
 		D05E6122302EFE55003A5776 /* BrowserToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05E6115302EFE55003A5776 /* BrowserToolbarView.swift */; };
 		D0B4E00C300F5C5700B81746 /* WalletCore in Frameworks */ = {isa = PBXBuildFile; productRef = D0B4E00B300F5C5700B81746 /* WalletCore */; };
 		D0B4E00E300F5C5700B81746 /* WalletCoreSwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = D0B4E00D300F5C5700B81746 /* WalletCoreSwiftProtobuf */; };
+		D0B4E022300F5C5700B81746 /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = D0B4E021300F5C5700B81746 /* ReownWalletKit */; };
+		D0B4E024300F5C5700B81746 /* ReownAppKit in Frameworks */ = {isa = PBXBuildFile; productRef = D0B4E023300F5C5700B81746 /* ReownAppKit */; };
+		D0B4E040300F5C5700B81746 /* ChainType+Web3.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E030300F5C5700B81746 /* ChainType+Web3.swift */; };
+		D0B4E041300F5C5700B81746 /* WCTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E031300F5C5700B81746 /* WCTransaction.swift */; };
+		D0B4E042300F5C5700B81746 /* EthRPCClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E032300F5C5700B81746 /* EthRPCClient.swift */; };
+		D0B4E043300F5C5700B81746 /* EthereumSigningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E033300F5C5700B81746 /* EthereumSigningService.swift */; };
+		D0B4E044300F5C5700B81746 /* WCUIState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E034300F5C5700B81746 /* WCUIState.swift */; };
+		D0B4E045300F5C5700B81746 /* WalletConnectConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E035300F5C5700B81746 /* WalletConnectConfig.swift */; };
+		D0B4E046300F5C5700B81746 /* WCDefaultCryptoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E036300F5C5700B81746 /* WCDefaultCryptoProvider.swift */; };
+		D0B4E047300F5C5700B81746 /* WCWalletSocketFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E037300F5C5700B81746 /* WCWalletSocketFactory.swift */; };
+		D0B4E048300F5C5700B81746 /* WalletConnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E038300F5C5700B81746 /* WalletConnectService.swift */; };
+		D0B4E049300F5C5700B81746 /* WCPairView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E039300F5C5700B81746 /* WCPairView.swift */; };
+		D0B4E04A300F5C5700B81746 /* WCProposalApprovalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E03A300F5C5700B81746 /* WCProposalApprovalView.swift */; };
+		D0B4E04B300F5C5700B81746 /* WCConnectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E03B300F5C5700B81746 /* WCConnectionsView.swift */; };
+		D0B4E04C300F5C5700B81746 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E03C300F5C5700B81746 /* QRScannerView.swift */; };
+		D0B4E04D300F5C5700B81746 /* ExternalWalletService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E03D300F5C5700B81746 /* ExternalWalletService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -93,8 +109,6 @@
 		0274CD762647A848008099B6 /* Double.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Double.swift; sourceTree = "<group>"; };
 		0274CD7A2647B5A3008099B6 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		0274CD852647C333008099B6 /* CoinDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinDataService.swift; sourceTree = "<group>"; };
-		1A2B3C4D5E6F0001000000A1 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
-		1A2B3C4D5E6F0003000000A3 /* ExportAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportAccountView.swift; sourceTree = "<group>"; };
 		0274CD892647CEF2008099B6 /* NetworkingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingManager.swift; sourceTree = "<group>"; };
 		0274CD8E2647D85F008099B6 /* CoinImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinImageView.swift; sourceTree = "<group>"; };
 		0274CD912647D9F1008099B6 /* CoinImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinImageService.swift; sourceTree = "<group>"; };
@@ -136,6 +150,8 @@
 		028E1C2E264F80140A4B420 /* SwiftfulCrypto/Core/Transfer/ViewModels/TransactionListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftfulCrypto/Core/Transfer/ViewModels/TransactionListViewModel.swift; sourceTree = "<group>"; };
 		028E1C30264F80160A4B420 /* SwiftfulCrypto/Core/Transfer/Views/TransactionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftfulCrypto/Core/Transfer/Views/TransactionListView.swift; sourceTree = "<group>"; };
 		028E1C32264F80180A4B420 /* SwiftfulCrypto/Core/Transfer/Views/CreateTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftfulCrypto/Core/Transfer/Views/CreateTransactionView.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F0001000000A1 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F0003000000A3 /* ExportAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportAccountView.swift; sourceTree = "<group>"; };
 		D024AC15302F09A6006759EB /* trust-min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "trust-min.js"; sourceTree = "<group>"; };
 		D05E610B302EFE55003A5776 /* WebViewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewCoordinator.swift; sourceTree = "<group>"; };
 		D05E610D302EFE55003A5776 /* PendingRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingRequest.swift; sourceTree = "<group>"; };
@@ -146,6 +162,20 @@
 		D05E6115302EFE55003A5776 /* BrowserToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserToolbarView.swift; sourceTree = "<group>"; };
 		D05E6116302EFE55003A5776 /* DAppBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAppBrowserView.swift; sourceTree = "<group>"; };
 		D05E6117302EFE55003A5776 /* SigningRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigningRequestView.swift; sourceTree = "<group>"; };
+		D0B4E030300F5C5700B81746 /* ChainType+Web3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChainType+Web3.swift"; sourceTree = "<group>"; };
+		D0B4E031300F5C5700B81746 /* WCTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransaction.swift; sourceTree = "<group>"; };
+		D0B4E032300F5C5700B81746 /* EthRPCClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthRPCClient.swift; sourceTree = "<group>"; };
+		D0B4E033300F5C5700B81746 /* EthereumSigningService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumSigningService.swift; sourceTree = "<group>"; };
+		D0B4E034300F5C5700B81746 /* WCUIState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCUIState.swift; sourceTree = "<group>"; };
+		D0B4E035300F5C5700B81746 /* WalletConnectConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConfig.swift; sourceTree = "<group>"; };
+		D0B4E036300F5C5700B81746 /* WCDefaultCryptoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCDefaultCryptoProvider.swift; sourceTree = "<group>"; };
+		D0B4E037300F5C5700B81746 /* WCWalletSocketFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCWalletSocketFactory.swift; sourceTree = "<group>"; };
+		D0B4E038300F5C5700B81746 /* WalletConnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectService.swift; sourceTree = "<group>"; };
+		D0B4E039300F5C5700B81746 /* WCPairView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCPairView.swift; sourceTree = "<group>"; };
+		D0B4E03A300F5C5700B81746 /* WCProposalApprovalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCProposalApprovalView.swift; sourceTree = "<group>"; };
+		D0B4E03B300F5C5700B81746 /* WCConnectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCConnectionsView.swift; sourceTree = "<group>"; };
+		D0B4E03C300F5C5700B81746 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
+		D0B4E03D300F5C5700B81746 /* ExternalWalletService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalWalletService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,6 +185,8 @@
 			files = (
 				D0B4E00C300F5C5700B81746 /* WalletCore in Frameworks */,
 				D0B4E00E300F5C5700B81746 /* WalletCoreSwiftProtobuf in Frameworks */,
+				D0B4E022300F5C5700B81746 /* ReownWalletKit in Frameworks */,
+				D0B4E024300F5C5700B81746 /* ReownAppKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,6 +259,8 @@
 				028E1C0C264F6ADE00A4B420 /* Settings */,
 				028E1C10264F7FF400A4B420 /* MainTabView */,
 				028E1C11264F7FF600A4B420 /* Profile */,
+				D0B4E050300F5C5700B81746 /* Web3 */,
+				D0B4E053300F5C5700B81746 /* WalletConnect */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -499,6 +533,82 @@
 			path = Browser;
 			sourceTree = "<group>";
 		};
+		D0B4E050300F5C5700B81746 /* Web3 */ = {
+			isa = PBXGroup;
+			children = (
+				D0B4E051300F5C5700B81746 /* Models */,
+				D0B4E052300F5C5700B81746 /* Services */,
+			);
+			path = Web3;
+			sourceTree = "<group>";
+		};
+		D0B4E051300F5C5700B81746 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				D0B4E030300F5C5700B81746 /* ChainType+Web3.swift */,
+				D0B4E031300F5C5700B81746 /* WCTransaction.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		D0B4E052300F5C5700B81746 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				D0B4E032300F5C5700B81746 /* EthRPCClient.swift */,
+				D0B4E033300F5C5700B81746 /* EthereumSigningService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		D0B4E053300F5C5700B81746 /* WalletConnect */ = {
+			isa = PBXGroup;
+			children = (
+				D0B4E035300F5C5700B81746 /* WalletConnectConfig.swift */,
+				D0B4E054300F5C5700B81746 /* Models */,
+				D0B4E055300F5C5700B81746 /* Services */,
+				D0B4E056300F5C5700B81746 /* Views */,
+			);
+			path = WalletConnect;
+			sourceTree = "<group>";
+		};
+		D0B4E054300F5C5700B81746 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				D0B4E034300F5C5700B81746 /* WCUIState.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		D0B4E055300F5C5700B81746 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				D0B4E036300F5C5700B81746 /* WCDefaultCryptoProvider.swift */,
+				D0B4E037300F5C5700B81746 /* WCWalletSocketFactory.swift */,
+				D0B4E038300F5C5700B81746 /* WalletConnectService.swift */,
+				D0B4E03D300F5C5700B81746 /* ExternalWalletService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		D0B4E056300F5C5700B81746 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D0B4E039300F5C5700B81746 /* WCPairView.swift */,
+				D0B4E03A300F5C5700B81746 /* WCProposalApprovalView.swift */,
+				D0B4E03B300F5C5700B81746 /* WCConnectionsView.swift */,
+				D0B4E057300F5C5700B81746 /* QRScanner */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D0B4E057300F5C5700B81746 /* QRScanner */ = {
+			isa = PBXGroup;
+			children = (
+				D0B4E03C300F5C5700B81746 /* QRScannerView.swift */,
+			);
+			path = QRScanner;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -515,6 +625,12 @@
 			dependencies = (
 			);
 			name = SwiftfulCrypto;
+			packageProductDependencies = (
+				D0B4E00B300F5C5700B81746 /* WalletCore */,
+				D0B4E00D300F5C5700B81746 /* WalletCoreSwiftProtobuf */,
+				D0B4E021300F5C5700B81746 /* ReownWalletKit */,
+				D0B4E023300F5C5700B81746 /* ReownAppKit */,
+			);
 			productName = SwiftfulCrypto;
 			productReference = 0274CD3F264783B5008099B6 /* SwiftfulCrypto.app */;
 			productType = "com.apple.product-type.application";
@@ -544,6 +660,7 @@
 			mainGroup = 0274CD36264783B5008099B6;
 			packageReferences = (
 				D0B4E00A300F5C5700B81746 /* XCRemoteSwiftPackageReference "wallet-core" */,
+				D0B4E025300F5C5700B81746 /* XCRemoteSwiftPackageReference "reown-swift" */,
 			);
 			productRefGroup = 0274CD40264783B5008099B6 /* Products */;
 			projectDirPath = "";
@@ -635,6 +752,20 @@
 				028E1C2F264F80140A4B420 /* SwiftfulCrypto/Core/Transfer/ViewModels/TransactionListViewModel.swift in Sources */,
 				028E1C31264F80160A4B420 /* SwiftfulCrypto/Core/Transfer/Views/TransactionListView.swift in Sources */,
 				028E1C33264F80180A4B420 /* SwiftfulCrypto/Core/Transfer/Views/CreateTransactionView.swift in Sources */,
+				D0B4E040300F5C5700B81746 /* ChainType+Web3.swift in Sources */,
+				D0B4E041300F5C5700B81746 /* WCTransaction.swift in Sources */,
+				D0B4E042300F5C5700B81746 /* EthRPCClient.swift in Sources */,
+				D0B4E043300F5C5700B81746 /* EthereumSigningService.swift in Sources */,
+				D0B4E044300F5C5700B81746 /* WCUIState.swift in Sources */,
+				D0B4E045300F5C5700B81746 /* WalletConnectConfig.swift in Sources */,
+				D0B4E046300F5C5700B81746 /* WCDefaultCryptoProvider.swift in Sources */,
+				D0B4E047300F5C5700B81746 /* WCWalletSocketFactory.swift in Sources */,
+				D0B4E048300F5C5700B81746 /* WalletConnectService.swift in Sources */,
+				D0B4E049300F5C5700B81746 /* WCPairView.swift in Sources */,
+				D0B4E04A300F5C5700B81746 /* WCProposalApprovalView.swift in Sources */,
+				D0B4E04B300F5C5700B81746 /* WCConnectionsView.swift in Sources */,
+				D0B4E04C300F5C5700B81746 /* QRScannerView.swift in Sources */,
+				D0B4E04D300F5C5700B81746 /* ExternalWalletService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -762,6 +893,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SwiftfulCrypto/SwiftfulCrypto.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"SwiftfulCrypto/Preview Content\"";
 				DEVELOPMENT_TEAM = 2BQ24FUN6Z;
@@ -784,6 +916,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SwiftfulCrypto/SwiftfulCrypto.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"SwiftfulCrypto/Preview Content\"";
 				DEVELOPMENT_TEAM = 2BQ24FUN6Z;
@@ -833,6 +966,14 @@
 				version = 4.7.0;
 			};
 		};
+		D0B4E025300F5C5700B81746 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/reown-com/reown-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -845,6 +986,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D0B4E00A300F5C5700B81746 /* XCRemoteSwiftPackageReference "wallet-core" */;
 			productName = WalletCoreSwiftProtobuf;
+		};
+		D0B4E021300F5C5700B81746 /* ReownWalletKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D0B4E025300F5C5700B81746 /* XCRemoteSwiftPackageReference "reown-swift" */;
+			productName = ReownWalletKit;
+		};
+		D0B4E023300F5C5700B81746 /* ReownAppKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D0B4E025300F5C5700B81746 /* XCRemoteSwiftPackageReference "reown-swift" */;
+			productName = ReownAppKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 
