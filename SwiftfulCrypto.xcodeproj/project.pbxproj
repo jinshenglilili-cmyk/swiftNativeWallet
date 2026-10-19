@@ -63,6 +63,7 @@
 		028E1C33264F80180A4B420 /* SwiftfulCrypto/Core/Transfer/Views/CreateTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028E1C32264F80180A4B420 /* SwiftfulCrypto/Core/Transfer/Views/CreateTransactionView.swift */; };
 		1A2B3C4D5E6F0002000000A2 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F0001000000A1 /* KeychainService.swift */; };
 		1A2B3C4D5E6F0004000000A4 /* ExportAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F0003000000A3 /* ExportAccountView.swift */; };
+		1A2B3C4D5E6F0006000000A6 /* ContractCallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F0005000000A5 /* ContractCallView.swift */; };
 		D024AC16302F09A6006759EB /* trust-min.js in Resources */ = {isa = PBXBuildFile; fileRef = D024AC15302F09A6006759EB /* trust-min.js */; };
 		D05E611A302EFE55003A5776 /* BrowserTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05E6114302EFE55003A5776 /* BrowserTabView.swift */; };
 		D05E611B302EFE55003A5776 /* Web3RPCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05E6110302EFE55003A5776 /* Web3RPCService.swift */; };
@@ -77,6 +78,7 @@
 		D0B4E00E300F5C5700B81746 /* WalletCoreSwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = D0B4E00D300F5C5700B81746 /* WalletCoreSwiftProtobuf */; };
 		D0B4E022300F5C5700B81746 /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = D0B4E021300F5C5700B81746 /* ReownWalletKit */; };
 		D0B4E024300F5C5700B81746 /* ReownAppKit in Frameworks */ = {isa = PBXBuildFile; productRef = D0B4E023300F5C5700B81746 /* ReownAppKit */; };
+		1A2B3C4D5E6F0009000000A9 /* web3swift in Frameworks */ = {isa = PBXBuildFile; productRef = 1A2B3C4D5E6F0008000000A8 /* web3swift */; };
 		D0B4E040300F5C5700B81746 /* ChainType+Web3.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E030300F5C5700B81746 /* ChainType+Web3.swift */; };
 		D0B4E041300F5C5700B81746 /* WCTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E031300F5C5700B81746 /* WCTransaction.swift */; };
 		D0B4E042300F5C5700B81746 /* EthRPCClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4E032300F5C5700B81746 /* EthRPCClient.swift */; };
@@ -152,6 +154,7 @@
 		028E1C32264F80180A4B420 /* SwiftfulCrypto/Core/Transfer/Views/CreateTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftfulCrypto/Core/Transfer/Views/CreateTransactionView.swift; sourceTree = "<group>"; };
 		1A2B3C4D5E6F0001000000A1 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
 		1A2B3C4D5E6F0003000000A3 /* ExportAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportAccountView.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F0005000000A5 /* ContractCallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContractCallView.swift; sourceTree = "<group>"; };
 		D024AC15302F09A6006759EB /* trust-min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "trust-min.js"; sourceTree = "<group>"; };
 		D05E610B302EFE55003A5776 /* WebViewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewCoordinator.swift; sourceTree = "<group>"; };
 		D05E610D302EFE55003A5776 /* PendingRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingRequest.swift; sourceTree = "<group>"; };
@@ -187,6 +190,7 @@
 				D0B4E00E300F5C5700B81746 /* WalletCoreSwiftProtobuf in Frameworks */,
 				D0B4E022300F5C5700B81746 /* ReownWalletKit in Frameworks */,
 				D0B4E024300F5C5700B81746 /* ReownAppKit in Frameworks */,
+				1A2B3C4D5E6F0009000000A9 /* web3swift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -453,6 +457,7 @@
 				028E1C28264F800E0A4B420 /* AddAccountView.swift */,
 				028E1C2A264F80100A4B420 /* CreateAccountByMnemonicView.swift */,
 				1A2B3C4D5E6F0003000000A3 /* ExportAccountView.swift */,
+				1A2B3C4D5E6F0005000000A5 /* ContractCallView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -630,6 +635,7 @@
 				D0B4E00D300F5C5700B81746 /* WalletCoreSwiftProtobuf */,
 				D0B4E021300F5C5700B81746 /* ReownWalletKit */,
 				D0B4E023300F5C5700B81746 /* ReownAppKit */,
+				1A2B3C4D5E6F0008000000A8 /* web3swift */,
 			);
 			productName = SwiftfulCrypto;
 			productReference = 0274CD3F264783B5008099B6 /* SwiftfulCrypto.app */;
@@ -661,6 +667,7 @@
 			packageReferences = (
 				D0B4E00A300F5C5700B81746 /* XCRemoteSwiftPackageReference "wallet-core" */,
 				D0B4E025300F5C5700B81746 /* XCRemoteSwiftPackageReference "reown-swift" */,
+				1A2B3C4D5E6F0007000000A7 /* XCRemoteSwiftPackageReference "web3swift" */,
 			);
 			productRefGroup = 0274CD40264783B5008099B6 /* Products */;
 			projectDirPath = "";
@@ -748,6 +755,7 @@
 				028E1C29264F800E0A4B420 /* AddAccountView.swift in Sources */,
 				028E1C2B264F80100A4B420 /* CreateAccountByMnemonicView.swift in Sources */,
 				1A2B3C4D5E6F0004000000A4 /* ExportAccountView.swift in Sources */,
+				1A2B3C4D5E6F0006000000A6 /* ContractCallView.swift in Sources */,
 				028E1C2D264F80120A4B420 /* SwiftfulCrypto/Core/Transfer/Models/TransactionModel.swift in Sources */,
 				028E1C2F264F80140A4B420 /* SwiftfulCrypto/Core/Transfer/ViewModels/TransactionListViewModel.swift in Sources */,
 				028E1C31264F80160A4B420 /* SwiftfulCrypto/Core/Transfer/Views/TransactionListView.swift in Sources */,
@@ -974,6 +982,14 @@
 				minimumVersion = 2.4.0;
 			};
 		};
+		1A2B3C4D5E6F0007000000A7 /* XCRemoteSwiftPackageReference "web3swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/web3swift-team/web3swift";
+			requirement = {
+				kind = exactVersion;
+				version = 3.3.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -996,6 +1012,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D0B4E025300F5C5700B81746 /* XCRemoteSwiftPackageReference "reown-swift" */;
 			productName = ReownAppKit;
+		};
+		1A2B3C4D5E6F0008000000A8 /* web3swift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1A2B3C4D5E6F0007000000A7 /* XCRemoteSwiftPackageReference "web3swift" */;
+			productName = web3swift;
 		};
 /* End XCSwiftPackageProductDependency section */
 

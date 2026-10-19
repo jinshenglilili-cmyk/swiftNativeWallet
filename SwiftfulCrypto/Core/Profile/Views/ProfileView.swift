@@ -210,6 +210,21 @@ extension ProfileView {
                             }
                         }
                         .listRowBackground(Color.theme.background.opacity(0.5))
+
+                        // 合约调用：构造 calldata → 签名 → 广播 → 展示 hash
+                        NavigationLink {
+                            ContractCallView(profileVM: vm)
+                        } label: {
+                            HStack {
+                                Image(systemName: "curlybraces.square.fill")
+                                    .foregroundColor(.pink)
+                                    .frame(width: 25)
+                                Text("合约调用")
+                                    .foregroundColor(Color.theme.accent)
+                                Spacer()
+                            }
+                        }
+                        .listRowBackground(Color.theme.background.opacity(0.5))
                     }
 
                     // WalletConnect 区块
